@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: InclusiveConnectBackend
+  profiles:
+      active: dev
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+logging:
+  level:
+    root: INFO
+    com.inclusiveconnect: DEBUG
+    org.springframework.security: INFO

@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/inclusive_connect?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: inc_connect
+    password: cnt*123I
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: developermani001@gmail.com
+    password: mani@9331K
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-long-random-base64-secret-before-production}
+    access-token-expiration-ms: 900000        # 15 minutes
+    refresh-token-expiration-ms: 604800000    # 7 days
+  cors:
+    allowed-origins: http://localhost:4200
