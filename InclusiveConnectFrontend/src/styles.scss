@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #2563EB;
+  --color-secondary: #14B8A6;
+  --color-success: #16A34A;
+  --color-error: #DC2626;
+  --font-size-base: 16px;
+}
+
+html {
+  font-size: var(--font-size-base);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  margin: 0;
+}
+
+/* Skip navigation link - accessibility requirement (Phase 7) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 1000;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* High contrast mode toggled via body class - wired up in Sprint 8 */
+body.high-contrast {
+  --color-primary: #0000EE;
+  filter: contrast(1.3);
+}
+
+/* Visible focus outline for keyboard navigation */
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
