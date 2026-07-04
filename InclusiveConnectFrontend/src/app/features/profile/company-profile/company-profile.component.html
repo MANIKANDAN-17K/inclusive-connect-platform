@@ -1,0 +1,283 @@
+<section class="min-h-screen bg-gray-50 py-10 px-4" *ngIf="!loading; else loadingBlock">
+  <div class="max-w-3xl mx-auto">
+
+    <!-- ================= VIEW MODE ================= -->
+    <div
+      *ngIf="hasCompany && company && !editing"
+      class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+    >
+
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-primary to-blue-600 p-8 text-white">
+        <div class="flex justify-between items-start">
+
+          <div>
+            <h1 class="text-3xl font-bold">
+              {{ company.companyName }}
+            </h1>
+
+            <p class="text-white/80 mt-2">
+              Welcome to your company profile
+            </p>
+          </div>
+
+          <button
+            class="bg-white text-primary font-medium px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+            (click)="startEditing()"
+          >
+            ✏️ Edit Profile
+          </button>
+
+        </div>
+
+        <div class="mt-5">
+          <span
+            class="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
+            [class.bg-green-500]="company.verified"
+            [class.text-white]="company.verified"
+            [class.bg-yellow-100]="!company.verified"
+            [class.text-yellow-800]="!company.verified"
+          >
+            {{ company.verified ? '✔ Verified Employer' : '⏳ Verification Pending' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Company Information -->
+
+      <div class="p-8 space-y-6">
+
+        <div
+          class="grid md:grid-cols-2 gap-6"
+        >
+
+          <div
+            class="bg-gray-50 rounded-xl p-5 border"
+            *ngIf="company.industry"
+          >
+            <p class="text-xs uppercase tracking-wide text-gray-500">
+              Industry
+            </p>
+
+            <p class="mt-2 text-lg font-semibold">
+              {{ company.industry }}
+            </p>
+          </div>
+
+          <div
+            class="bg-gray-50 rounded-xl p-5 border"
+            *ngIf="company.companySize"
+          >
+            <p class="text-xs uppercase tracking-wide text-gray-500">
+              Company Size
+            </p>
+
+            <p class="mt-2 text-lg font-semibold">
+              {{ company.companySize }}
+            </p>
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="company.website"
+          class="bg-gray-50 rounded-xl border p-5"
+        >
+          <p class="text-xs uppercase tracking-wide text-gray-500">
+            Website
+          </p>
+
+          <a
+            [href]="company.website"
+            target="_blank"
+            class="text-primary hover:underline break-all text-lg font-medium"
+          >
+            {{ company.website }}
+          </a>
+        </div>
+
+        <div
+          *ngIf="company.description"
+          class="bg-gray-50 rounded-xl border p-5"
+        >
+          <p class="text-xs uppercase tracking-wide text-gray-500 mb-3">
+            About Company
+          </p>
+
+          <p class="leading-7 whitespace-pre-line text-gray-700">
+            {{ company.description }}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= FORM ================= -->
+
+    <div
+      *ngIf="!hasCompany || editing"
+      class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8"
+    >
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        class="space-y-6"
+        aria-labelledby="company-heading"
+      >
+
+        <div>
+          <h1
+            id="company-heading"
+            class="text-3xl font-bold text-gray-900"
+          >
+            {{ hasCompany ? 'Edit Company Profile' : 'Create Company Profile' }}
+          </h1>
+
+          <p class="mt-2 text-gray-500">
+            Build your company presence and attract talented candidates.
+          </p>
+        </div>
+
+        <!-- Company Name -->
+
+        <div>
+          <label
+            for="companyName"
+            class="block mb-2 font-medium text-gray-700"
+          >
+            Company Name
+          </label>
+
+          <input
+            id="companyName"
+            formControlName="companyName"
+            class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+          />
+        </div>
+
+        <!-- Industry -->
+
+        <div>
+          <label
+            for="industry"
+            class="block mb-2 font-medium text-gray-700"
+          >
+            Industry
+          </label>
+
+          <input
+            id="industry"
+            formControlName="industry"
+            class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+          />
+        </div>
+
+        <!-- Company Size -->
+
+        <div>
+          <label
+            for="companySize"
+            class="block mb-2 font-medium text-gray-700"
+          >
+            Company Size
+          </label>
+
+          <input
+            id="companySize"
+            formControlName="companySize"
+            placeholder="e.g. 51–200 Employees"
+            class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+          />
+        </div>
+
+        <!-- Website -->
+
+        <div>
+          <label
+            for="website"
+            class="block mb-2 font-medium text-gray-700"
+          >
+            Website
+          </label>
+
+          <input
+            id="website"
+            formControlName="website"
+            placeholder="https://example.com"
+            class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+          />
+        </div>
+
+        <!-- Description -->
+
+        <div>
+          <label
+            for="description"
+            class="block mb-2 font-medium text-gray-700"
+          >
+            About Company
+          </label>
+
+          <textarea
+            id="description"
+            rows="5"
+            formControlName="description"
+            class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+          ></textarea>
+        </div>
+
+        <!-- Error -->
+
+        <div
+          *ngIf="errorMessage"
+          class="rounded-lg border border-red-200 bg-red-50 p-3 text-red-600"
+        >
+          {{ errorMessage }}
+        </div>
+
+        <!-- Buttons -->
+
+        <div class="flex gap-3 pt-2">
+
+          <button
+            type="submit"
+            [disabled]="saving"
+            class="bg-primary hover:bg-blue-700 transition text-white
+                   rounded-xl px-6 py-3 font-medium disabled:opacity-60"
+          >
+            {{ saving ? 'Saving...' : (hasCompany ? 'Save Changes' : 'Create Company') }}
+          </button>
+
+          <button
+            *ngIf="hasCompany"
+            type="button"
+            (click)="editing=false"
+            class="rounded-xl border border-gray-300 px-6 py-3 hover:bg-gray-100 transition"
+          >
+            Cancel
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</section>
+
+<ng-template #loadingBlock>
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="text-center">
+      <div class="h-10 w-10 mx-auto rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+      <p class="mt-4 text-gray-500">Loading company profile...</p>
+    </div>
+  </div>
+</ng-template>

@@ -14,8 +14,22 @@ export const routes: Routes = [
   {
     path: 'profile',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/profile/profile.component').then((m) => m.ProfileComponent),
+    loadComponent: () => import('./features/profile/candidate-profile/profile.component').then((m) => m.ProfileComponent),
   },
+  {
+  path: 'company',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/profile/company-profile/company-profile.component').then((m) => m.CompanyProfileComponent),
+  },
+  {
+  path: 'jobs',
+  loadComponent: () => import('./features/jobs/job-list/job-list.component').then((m) => m.JobListComponent),
+},
+{
+  path: 'jobs/:id',
+  loadComponent: () => import('./features/jobs/job-detail/job_detail.component').then((m) => m.JobDetailComponent),
+},
   {
     path: '**',
     loadComponent: () =>

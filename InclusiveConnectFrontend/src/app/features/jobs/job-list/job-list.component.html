@@ -1,0 +1,69 @@
+<section class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Find your next role</h1>
+
+  <form [formGroup]="filtersForm" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+    <input
+      formControlName="keyword"
+      placeholder="Search by title or keyword"
+      aria-label="Search jobs by keyword"
+      class="rounded border border-gray-300 px-3 py-2"
+    />
+    <input
+      formControlName="location"
+      placeholder="Location"
+      aria-label="Filter by location"
+      class="rounded border border-gray-300 px-3 py-2"
+    />
+    <select formControlName="employmentType" aria-label="Filter by employment type" class="rounded border border-gray-300 px-3 py-2">
+      <option value="">All employment types</option>
+      <option value="FULL_TIME">Full-time</option>
+      <option value="PART_TIME">Part-time</option>
+      <option value="CONTRACT">Contract</option>
+      <option value="INTERNSHIP">Internship</option>
+      <option value="REMOTE">Remote</option>
+    </select>
+  </form>
+
+  <p class="text-sm text-gray-500 mb-4" *ngIf="!loading">{{ totalElements }} job(s) found</p>
+  <p class="text-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div *ngIf="loading" class="text-center py-12 text-gray-500">Loading jobs…</div>
+
+  <ul *ngIf="!loading" class="space-y-4">
+    <li *ngFor="let job of jobs" class="border rounded-lg p-4 hover:border-primary transition-colors">
+      <a [routerLink]="['/jobs', job.id]" class="block">
+        <div class="flex justify-between items-start">
+          <div>
+            <h2 class="font-semibold text-gray-900">{{ job.title }}</h2>
+            <p class="text-sm text-gray-600">{{ job.companyName }} · {{ job.location || 'Location not specified' }}</p>
+          </div>
+          <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{{ job.employmentType }}</span>
+        </div>
+        <p class="text-sm text-gray-500 mt-2" *ngIf="job.salaryRange">{{ job.salaryRange }}</p>
+        <p class="text-sm text-secondary mt-1" *ngIf="job.accessibilityNotes">♿ {{ job.accessibilityNotes }}</p>
+      </a>
+    </li>
+    <li *ngIf="!jobs.length" class="text-center py-12 text-gray-500">No jobs match your search.</li>
+  </ul>
+
+  <!-- Pagination -->
+  <nav *ngIf="totalPages > 1" class="flex justify-center gap-2 mt-8" aria-label="Job listing pagination">
+    <button
+      class="px-3 py-1 rounded border disabled:opacity-40"
+      [disabled]="pageNumber === 0"
+      (click)="goToPage(pageNumber - 1)"
+      aria-label="Previous page"
+    >
+      Previous
+    </button>
+    <span class="px-3 py-1 text-sm text-gray-600">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+    <button
+      class="px-3 py-1 rounded border disabled:opacity-40"
+      [disabled]="pageNumber >= totalPages - 1"
+      (click)="goToPage(pageNumber + 1)"
+      aria-label="Next page"
+    >
+      Next
+    </button>
+  </nav>
+</section>

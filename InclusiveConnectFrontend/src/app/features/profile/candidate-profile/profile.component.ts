@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProfileService } from '../../core/services/profile.service';
-import { Profile } from '../../core/models/profile.model';
+import { ProfileService } from '../../../core/services/profile.service';
+import { Profile } from '../../../core/models/profile.model';
 
 @Component({
   selector: 'ic-profile',

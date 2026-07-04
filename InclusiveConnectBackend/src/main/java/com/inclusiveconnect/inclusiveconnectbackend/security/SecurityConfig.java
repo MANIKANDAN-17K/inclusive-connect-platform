@@ -2,6 +2,7 @@ package com.inclusiveconnect.inclusiveconnectbackend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,9 +17,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,RestAuthenticationEntryPoint restAuthenticationEntryPoint) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
     }
 
     @Bean
@@ -32,7 +35,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/v1/jobs/my-jobs").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/jobs").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/jobs/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/jobs/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/jobs/*/apply").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/applications/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/jobs/*/applications").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/applications/*/status").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/swagger-ui/**",
