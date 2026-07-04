@@ -1,2 +1,58 @@
-<p class="text-success text-sm" role="status" *ngIf="successMessage">{{ successMessage }}</p>
-<p class="text-error text-sm" role="alert" *ngIf="errorMessage">{{ errorMessage }}</p>
+<section class="min-h-screen flex items-center justify-center bg-white px-4">
+  <form
+    class="w-full max-w-sm space-y-4"
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    aria-labelledby="register-heading"
+  >
+    <h1 id="register-heading" class="text-2xl font-semibold text-gray-900">Create your account</h1>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label for="firstName" class="block text-sm font-medium text-gray-700">First name</label>
+        <input id="firstName" formControlName="firstName" class="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
+      </div>
+      <div>
+        <label for="lastName" class="block text-sm font-medium text-gray-700">Last name</label>
+        <input id="lastName" formControlName="lastName" class="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
+      </div>
+    </div>
+
+    <div>
+      <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+      <input id="email" type="email" formControlName="email" class="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
+    </div>
+
+    <div>
+      <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+      <input id="password" type="password" formControlName="password" class="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
+    </div>
+
+    <div>
+      <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm password</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword" class="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
+    </div>
+
+    <fieldset>
+      <legend class="block text-sm font-medium text-gray-700">I am registering as</legend>
+      <label class="mr-4"><input type="radio" formControlName="role" value="CANDIDATE" /> Candidate</label>
+      <label><input type="radio" formControlName="role" value="EMPLOYER" /> Employer</label>
+    </fieldset>
+
+    <p class="text-success text-sm" role="status" *ngIf="successMessage">{{ successMessage }}</p>
+    <p class="text-error text-sm" role="alert" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <button
+      type="submit"
+      class="w-full rounded bg-primary text-white py-2 font-medium disabled:opacity-50"
+      [disabled]="submitting"
+    >
+      {{ submitting ? 'Creating account…' : 'Create account' }}
+    </button>
+
+    <p class="text-sm text-gray-600">
+      Already have an account?
+      <a routerLink="/auth/login" class="text-primary underline">Sign in</a>
+    </p>
+  </form>
+</section>

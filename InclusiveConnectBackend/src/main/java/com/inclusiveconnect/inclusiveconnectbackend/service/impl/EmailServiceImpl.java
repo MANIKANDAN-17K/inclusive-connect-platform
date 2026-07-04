@@ -32,9 +32,13 @@ public class EmailServiceImpl implements EmailService {
                         "This link expires in 24 hours.\n\n" +
                         "If you didn't create this account, you can ignore this email."
         );
-        mailSender.send(message);
-    }
 
+        try {
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send verification email to " + toEmail + ": " + e.getMessage());
+        }
+    }
     @Override
     public void sendPasswordResetEmail(String toEmail, String firstName, String token) {
         String link = frontendUrl + "/auth/reset-password?token=" + token;

@@ -37,7 +37,7 @@ export class LoginComponent {
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: () => {
         this.submitting = false;
-        this.router.navigate(['/']); // TODO: change to /dashboard once it exists
+        this.router.navigate(['/profile']); // TODO: change to /dashboard once it exists
       },
       error: (err) => {
         this.submitting = false;
