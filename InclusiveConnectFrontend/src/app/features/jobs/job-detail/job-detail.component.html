@@ -20,9 +20,43 @@
       <p class="text-sm text-gray-700">{{ j.accessibilityNotes }}</p>
     </div>
 
-    <button class="mt-6 rounded bg-primary text-white px-6 py-3 font-medium">
-      Apply now
-    </button>
-    <!-- TODO: wire this up once JobApplication (next stage) is built -->
+    <!-- Apply flow -->
+    <div class="mt-8">
+      <p *ngIf="applySuccess" class="text-success font-medium" role="status">
+        Application submitted! You can track it from your applications list.
+      </p>
+
+      <button
+        *ngIf="!showApplyForm && !applySuccess"
+        (click)="onApplyClick()"
+        class="rounded bg-primary text-white px-6 py-3 font-medium"
+      >
+        Apply now
+      </button>
+
+      <form *ngIf="showApplyForm" [formGroup]="coverLetterForm" (ngSubmit)="submitApplication()" class="space-y-3 max-w-md">
+        <div>
+          <label for="coverLetter" class="block text-sm font-medium text-gray-700">
+            Cover letter <span class="text-gray-400">(optional)</span>
+          </label>
+          <textarea
+            id="coverLetter"
+            formControlName="coverLetter"
+            rows="4"
+            class="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+            placeholder="Tell them why you're a great fit…"
+          ></textarea>
+        </div>
+
+        <p class="text-error text-sm" role="alert" *ngIf="applyError">{{ applyError }}</p>
+
+        <div class="flex gap-2">
+          <button type="submit" class="rounded bg-primary text-white px-4 py-2 text-sm" [disabled]="applying">
+            {{ applying ? 'Submitting…' : 'Submit application' }}
+          </button>
+          <button type="button" class="rounded border px-4 py-2 text-sm" (click)="showApplyForm = false">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </section>
