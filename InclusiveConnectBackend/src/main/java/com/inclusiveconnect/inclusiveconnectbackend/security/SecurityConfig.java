@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/applications/*/status").authenticated()
                         .requestMatchers("/api/v1/connections/**").authenticated()
                         .requestMatchers("/api/v1/chat/**").authenticated()
+                        .requestMatchers("/api/v1/notifications/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/**",

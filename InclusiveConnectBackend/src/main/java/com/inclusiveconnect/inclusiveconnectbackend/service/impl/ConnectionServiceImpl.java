@@ -3,12 +3,14 @@ package com.inclusiveconnect.inclusiveconnectbackend.service.impl;
 import com.inclusiveconnect.inclusiveconnectbackend.dto.response.ConnectionRequestResponse;
 import com.inclusiveconnect.inclusiveconnectbackend.dto.response.ConnectionResponse;
 import com.inclusiveconnect.inclusiveconnectbackend.entity.ConnectionRequest;
+import com.inclusiveconnect.inclusiveconnectbackend.entity.Notification;
 import com.inclusiveconnect.inclusiveconnectbackend.entity.User;
 import com.inclusiveconnect.inclusiveconnectbackend.exception.ConnectionAlreadyExistsException;
 import com.inclusiveconnect.inclusiveconnectbackend.exception.UserNotFoundException;
 import com.inclusiveconnect.inclusiveconnectbackend.repository.ConnectionRequestRepository;
 import com.inclusiveconnect.inclusiveconnectbackend.repository.UserRepository;
 import com.inclusiveconnect.inclusiveconnectbackend.service.ConnectionService;
+import com.inclusiveconnect.inclusiveconnectbackend.service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +23,14 @@ public class ConnectionServiceImpl implements ConnectionService {
     private final ConnectionRequestRepository connectionRequestRepository;
     private final UserRepository userRepository;
 
+    private final NotificationService notificationService;
+
     public ConnectionServiceImpl(ConnectionRequestRepository connectionRequestRepository,
-                                 UserRepository userRepository) {
+                                 UserRepository userRepository,
+                                 NotificationService notificationService) {
         this.connectionRequestRepository = connectionRequestRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -58,9 +64,20 @@ public class ConnectionServiceImpl implements ConnectionService {
         ConnectionRequest request = ConnectionRequest.builder()
                 .sender(sender)
                 .receiver(receiver)
+                .status(ConnectionRequest.ConnectionStatus.PENDING)
                 .build();
 
-        return toResponse(connectionRequestRepository.save(request));
+        ConnectionRequest saved = connectionRequestRepository.save(request);
+
+        notificationService.createAndPush(
+                receiverId,
+                "New connection request",
+                sender.getFirstName() + " " + sender.getLastName() + " wants to connect with you",
+                Notification.NotificationType.CONNECTION_REQUEST,
+                "/connections/pending"
+        );
+
+        return toResponse(saved);
     }
 
     @Override
@@ -72,7 +89,19 @@ public class ConnectionServiceImpl implements ConnectionService {
         request.setStatus(ConnectionRequest.ConnectionStatus.ACCEPTED);
         request.setRespondedAt(LocalDateTime.now());
 
-        return toResponse(connectionRequestRepository.save(request));
+        ConnectionRequest saved = connectionRequestRepository.save(request);
+
+        notificationService.createAndPush(
+                request.getSender().getId(),
+                "Connection request accepted",
+                request.getReceiver().getFirstName() + " "
+                        + request.getReceiver().getLastName()
+                        + " accepted your connection request",
+                Notification.NotificationType.CONNECTION_ACCEPTED,
+                "/profile"
+        );
+
+        return toResponse(saved);
     }
 
     @Override
@@ -83,6 +112,15 @@ public class ConnectionServiceImpl implements ConnectionService {
 
         request.setStatus(ConnectionRequest.ConnectionStatus.REJECTED);
         request.setRespondedAt(LocalDateTime.now());
+        notificationService.createAndPush(
+                request.getSender().getId(),
+                "Connection request declined",
+                request.getReceiver().getFirstName() + " "
+                        + request.getReceiver().getLastName()
+                        + " declined your connection request",
+                Notification.NotificationType.SYSTEM,
+                "/connections"
+        );
 
         return toResponse(connectionRequestRepository.save(request));
     }
@@ -111,6 +149,8 @@ public class ConnectionServiceImpl implements ConnectionService {
                 })
                 .toList();
     }
+    // constructor - add this parameter
+
 
     private ConnectionRequestResponse toResponse(ConnectionRequest cr) {
         return ConnectionRequestResponse.builder()
