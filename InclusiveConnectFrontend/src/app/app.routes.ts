@@ -36,6 +36,11 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./features/jobs/my-applications/my-applications.component').then((m) => m.MyApplicationsComponent),
 },
+{
+  path: 'chat',
+  canActivate: [authGuard],
+  loadComponent: () => import('./features/chat/chat.component').then((m) => m.ChatComponent),
+},
   {
     path: '**',
     loadComponent: () =>

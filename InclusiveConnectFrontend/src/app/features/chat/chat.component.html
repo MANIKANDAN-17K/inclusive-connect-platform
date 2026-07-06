@@ -1,0 +1,95 @@
+<section class="flex h-[calc(100vh-4rem)] max-w-5xl mx-auto border rounded-lg overflow-hidden">
+
+  <!-- Conversation list (left panel) -->
+  <div class="w-80 border-r flex flex-col">
+    <div class="p-4 border-b">
+      <h1 class="font-semibold text-gray-900">Messages</h1>
+    </div>
+
+    <div *ngIf="loadingConversations" class="p-4 text-sm text-gray-500">Loading…</div>
+
+    <ul class="overflow-y-auto flex-1">
+      <li
+        *ngFor="let conv of conversations"
+        (click)="openConversation(conv)"
+        class="p-4 cursor-pointer hover:bg-gray-50 border-b transition-colors"
+        [class.bg-primary]="activeConversation?.id === conv.id"
+        [attr.aria-current]="activeConversation?.id === conv.id ? 'true' : null"
+      >
+        <p class="font-medium text-sm text-gray-900">{{ conv.otherUserName }}</p>
+        <p class="text-xs text-gray-500 truncate mt-0.5">{{ conv.lastMessagePreview || 'No messages yet' }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">{{ conv.lastMessageAt | date: 'shortTime' }}</p>
+      </li>
+      <li *ngIf="!loadingConversations && !conversations.length" class="p-4 text-sm text-gray-500">
+        No conversations yet. Connect with someone to start chatting.
+      </li>
+    </ul>
+  </div>
+
+  <!-- Chat window (right panel) -->
+  <div class="flex-1 flex flex-col">
+    <div *ngIf="!activeConversation" class="flex-1 flex items-center justify-center text-gray-400 text-sm">
+      Select a conversation to start chatting
+    </div>
+
+    <ng-container *ngIf="activeConversation">
+      <!-- Header -->
+      <div class="p-4 border-b flex items-center gap-3">
+        <div>
+          <p class="font-medium text-gray-900">{{ activeConversation.otherUserName }}</p>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div #messageContainer class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div *ngIf="loadingMessages" class="text-center text-sm text-gray-400">Loading messages…</div>
+
+        <div
+          *ngFor="let msg of messages"
+          class="flex"
+          [class.justify-end]="isMyMessage(msg)"
+          [class.justify-start]="!isMyMessage(msg)"
+        >
+          <div
+            class="max-w-xs px-3 py-2 rounded-lg text-sm"
+            [class.bg-primary]="isMyMessage(msg)"
+            [class.text-white]="isMyMessage(msg)"
+            [class.bg-gray-100]="!isMyMessage(msg)"
+            [class.text-gray-800]="!isMyMessage(msg)"
+          >
+            <p>{{ msg.content }}</p>
+            <p class="text-xs mt-1 opacity-70">{{ msg.sentAt | date: 'shortTime' }}</p>
+          </div>
+        </div>
+
+        <p *ngIf="!loadingMessages && !messages.length" class="text-center text-sm text-gray-400">
+          No messages yet — say hello!
+        </p>
+      </div>
+
+      <!-- Input -->
+      <form
+        [formGroup]="messageForm"
+        (ngSubmit)="sendMessage()"
+        class="p-4 border-t flex gap-2"
+        aria-label="Send a message"
+      >
+        <input
+          formControlName="content"
+          placeholder="Type a message…"
+          aria-label="Message content"
+          class="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:outline-primary"
+          (keydown.enter)="sendMessage(); $event.preventDefault()"
+        />
+        <button
+          type="submit"
+          class="rounded bg-primary text-white px-4 py-2 text-sm disabled:opacity-50"
+          [disabled]="messageForm.invalid || sending"
+          aria-label="Send message"
+        >
+          Send
+        </button>
+      </form>
+    </ng-container>
+  </div>
+</section>

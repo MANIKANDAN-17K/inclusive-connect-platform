@@ -14,7 +14,7 @@ export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);
   private fb = new FormBuilder();
 
-  profile: Profile | null = null;
+  profile: Profile | null  = null;
   loading = true;
   loadError: string | null = null;
 

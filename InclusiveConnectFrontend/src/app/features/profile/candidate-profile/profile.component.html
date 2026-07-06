@@ -13,7 +13,8 @@
           <div class="flex items-center gap-4">
             <!-- Avatar -->
             <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-200">
-              {{ p.firstName?.[0] }}{{ p.lastName?.[0] }}
+              {{ p.firstName ? p.firstName[0] : '' }}
+              {{ p.lastName ? p.lastName[0] : '' }}
             </div>
             <div>
               <h1 class="text-2xl font-bold text-gray-900">{{ p.firstName }} {{ p.lastName }}</h1>
