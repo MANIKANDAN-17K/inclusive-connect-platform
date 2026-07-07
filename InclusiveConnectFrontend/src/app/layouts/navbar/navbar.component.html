@@ -1,0 +1,57 @@
+<nav class="border-b bg-white">
+  <div class="max-w-5xl mx-auto px-4 flex items-center justify-between h-16">
+    <a routerLink="/" class="font-bold text-primary">Inclusive Connect</a>
+
+    <div class="flex items-center gap-6 text-sm">
+      <a routerLink="/jobs" class="text-gray-700 hover:text-primary">Jobs</a>
+
+      <ng-container *ngIf="isLoggedIn; else guestLinks">
+        <a routerLink="/applications" class="text-gray-700 hover:text-primary">Applications</a>
+        <a routerLink="/chat" class="text-gray-700 hover:text-primary">Messages</a>
+        <a routerLink="/profile" class="text-gray-700 hover:text-primary">Profile</a>
+
+        <!-- Notification bell -->
+        <div class="relative">
+          <button
+            (click)="toggleDropdown()"
+            class="relative"
+            aria-label="Notifications"
+            [attr.aria-expanded]="showDropdown"
+          >
+            🔔
+            <span
+              *ngIf="unreadCount > 0"
+              class="absolute -top-1 -right-1 bg-error text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+            >
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
+          </button>
+
+          <div
+            *ngIf="showDropdown"
+            class="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50"
+          >
+            <p *ngIf="!notifications.length" class="p-4 text-sm text-gray-500">No notifications yet.</p>
+            <button
+              *ngFor="let n of notifications"
+              (click)="onNotificationClick(n)"
+              class="w-full text-left p-3 border-b hover:bg-gray-50 block"
+              [class.bg-primary]="!n.isRead"
+            >
+              <p class="text-sm font-medium text-gray-900">{{ n.title }}</p>
+              <p class="text-xs text-gray-600 mt-0.5">{{ n.message }}</p>
+              <p class="text-xs text-gray-400 mt-1">{{ n.createdAt | date: 'short' }}</p>
+            </button>
+          </div>
+        </div>
+
+        <button (click)="logout()" class="text-gray-700 hover:text-error">Logout</button>
+      </ng-container>
+
+      <ng-template #guestLinks>
+        <a routerLink="/auth/login" class="text-gray-700 hover:text-primary">Sign in</a>
+        <a routerLink="/auth/register" class="rounded bg-primary text-white px-4 py-1.5">Get started</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>
