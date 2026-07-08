@@ -1,0 +1,47 @@
+<section class="max-w-4xl mx-auto px-4 py-8">
+  <a routerLink="/admin" class="text-sm text-primary underline">&larr; Back to dashboard</a>
+  <h1 class="text-2xl font-bold text-gray-900 mt-2 mb-6">Manage users</h1>
+
+  <div *ngIf="loading" class="text-gray-500">Loading…</div>
+
+  <table *ngIf="!loading" class="w-full text-sm border-collapse">
+    <thead>
+      <tr class="text-left border-b">
+        <th class="py-2">Name</th>
+        <th class="py-2">Email</th>
+        <th class="py-2">Role</th>
+        <th class="py-2">Status</th>
+        <th class="py-2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users" class="border-b">
+        <td class="py-2">{{ user.firstName }} {{ user.lastName }}</td>
+        <td class="py-2">{{ user.email }}</td>
+        <td class="py-2">{{ user.role }}</td>
+        <td class="py-2">
+          <span
+            class="text-xs px-2 py-1 rounded-full"
+            [class.bg-success]="user.isActive"
+            [class.text-white]="user.isActive"
+            [class.bg-error]="!user.isActive"
+          >
+            {{ user.isActive ? 'Active' : 'Blocked' }}
+          </span>
+        </td>
+        <td class="py-2">
+          <button
+            *ngIf="user.role !== 'ROLE_ADMIN'"
+            (click)="toggleBlock(user)"
+            [disabled]="actioningId === user.id"
+            class="text-sm underline"
+            [class.text-error]="user.isActive"
+            [class.text-success]="!user.isActive"
+          >
+            {{ actioningId === user.id ? 'Working…' : (user.isActive ? 'Block' : 'Unblock') }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

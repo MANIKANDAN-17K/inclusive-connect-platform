@@ -4,11 +4,14 @@
 
     <div class="flex items-center gap-6 text-sm">
       <a routerLink="/jobs" class="text-gray-700 hover:text-primary">Jobs</a>
-
+      <a routerLink="/accessibility" class="text-gray-700 hover:text-primary" aria-label="Accessibility settings">
+  ♿
+</a>
       <ng-container *ngIf="isLoggedIn; else guestLinks">
         <a routerLink="/applications" class="text-gray-700 hover:text-primary">Applications</a>
         <a routerLink="/chat" class="text-gray-700 hover:text-primary">Messages</a>
         <a routerLink="/profile" class="text-gray-700 hover:text-primary">Profile</a>
+        <a *ngIf="isAdmin" routerLink="/admin" class="text-gray-700 hover:text-primary">Admin</a>
 
         <!-- Notification bell -->
         <div class="relative">

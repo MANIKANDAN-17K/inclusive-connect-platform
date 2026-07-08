@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -40,6 +41,31 @@ export const routes: Routes = [
   path: 'chat',
   canActivate: [authGuard],
   loadComponent: () => import('./features/chat/chat.component').then((m) => m.ChatComponent),
+},
+{
+  path: 'accessibility',
+  loadComponent: () =>
+    import('./features/accessibility/accessibility-setting.component').then(
+      (m) => m.AccessibilitySettingsComponent
+    ),
+},
+{
+  path: 'admin',
+  canActivate: [adminGuard],
+  loadComponent: () =>
+    import('./features/admin/admin-dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent),
+},
+{
+  path: 'admin/users',
+  canActivate: [adminGuard],
+  loadComponent: () =>
+    import('./features/admin/admin-user/admin-users.component').then((m) => m.AdminUsersComponent),
+},
+{
+  path: 'admin/employers',
+  canActivate: [adminGuard],
+  loadComponent: () =>
+    import('./features/admin/admin-employers/admin-employers.component').then((m) => m.AdminEmployersComponent),
 },
   {
     path: '**',

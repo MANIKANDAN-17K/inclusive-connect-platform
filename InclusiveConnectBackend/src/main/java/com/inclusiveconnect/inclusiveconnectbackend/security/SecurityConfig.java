@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/connections/**").authenticated()
                         .requestMatchers("/api/v1/chat/**").authenticated()
                         .requestMatchers("/api/v1/notifications/**").authenticated()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/**",

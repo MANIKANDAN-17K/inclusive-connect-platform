@@ -15,7 +15,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private router = inject(Router);
-
+  isAdmin = false;
   isLoggedIn = false;
   showDropdown = false;
   unreadCount = 0;
@@ -27,7 +27,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.isLoggedIn) {
       this.notificationService.refreshUnreadCount();
       this.notificationService.connectRealtime();
-
+      this.isAdmin = localStorage.getItem('ic_role') === 'ROLE_ADMIN';
       this.notificationService.unreadCount$.subscribe((count) => {
         this.unreadCount = count;
       });

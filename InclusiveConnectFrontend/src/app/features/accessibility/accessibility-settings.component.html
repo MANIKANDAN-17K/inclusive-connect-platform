@@ -1,0 +1,77 @@
+<section class="max-w-lg mx-auto px-4 py-8" *ngIf="prefs$ | async as prefs">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">Accessibility settings</h1>
+  <p class="text-sm text-gray-600 mb-6">
+    These preferences are saved on this device and apply across the whole site.
+  </p>
+
+  <!-- High contrast -->
+  <div class="flex items-center justify-between py-4 border-b">
+    <div>
+      <label for="high-contrast" class="font-medium text-gray-900">High contrast mode</label>
+      <p class="text-sm text-gray-500">Increases color contrast for better visibility.</p>
+    </div>
+    <button
+      id="high-contrast"
+      role="switch"
+      [attr.aria-checked]="prefs.highContrast"
+      (click)="toggleHighContrast(prefs.highContrast)"
+      class="w-12 h-6 rounded-full transition-colors relative"
+      [class.bg-primary]="prefs.highContrast"
+      [class.bg-gray-300]="!prefs.highContrast"
+    >
+      <span
+        class="absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform"
+        [class.translate-x-6]="prefs.highContrast"
+        [class.translate-x-0.5]="!prefs.highContrast"
+      ></span>
+    </button>
+  </div>
+
+  <!-- Font size -->
+  <div class="py-4 border-b">
+    <p class="font-medium text-gray-900 mb-1">Font size</p>
+    <p class="text-sm text-gray-500 mb-3">Adjusts text size across the entire site.</p>
+    <div class="flex gap-2" role="radiogroup" aria-label="Font size">
+      <button
+        *ngFor="let size of ['normal', 'large', 'extra-large']"
+        role="radio"
+        [attr.aria-checked]="prefs.fontSize === size"
+        (click)="setFontSize(size)"
+        class="px-4 py-2 rounded border text-sm capitalize"
+        [class.bg-primary]="prefs.fontSize === size"
+        [class.text-white]="prefs.fontSize === size"
+        [class.border-primary]="prefs.fontSize === size"
+        [class.border-gray-300]="prefs.fontSize !== size"
+      >
+        {{ size === 'extra-large' ? 'Extra large' : size }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Reduce motion -->
+  <div class="flex items-center justify-between py-4 border-b">
+    <div>
+      <label for="reduce-motion" class="font-medium text-gray-900">Reduce motion</label>
+      <p class="text-sm text-gray-500">Minimizes animations and transitions.</p>
+    </div>
+    <button
+      id="reduce-motion"
+      role="switch"
+      [attr.aria-checked]="prefs.reduceMotion"
+      (click)="toggleReduceMotion(prefs.reduceMotion)"
+      class="w-12 h-6 rounded-full transition-colors relative"
+      [class.bg-primary]="prefs.reduceMotion"
+      [class.bg-gray-300]="!prefs.reduceMotion"
+    >
+      <span
+        class="absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform"
+        [class.translate-x-6]="prefs.reduceMotion"
+        [class.translate-x-0.5]="!prefs.reduceMotion"
+      ></span>
+    </button>
+  </div>
+
+  <button (click)="resetAll()" class="mt-6 text-sm text-gray-500 underline">
+    Reset to defaults
+  </button>
+</section>

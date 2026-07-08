@@ -7,11 +7,11 @@
   --color-secondary: #14B8A6;
   --color-success: #16A34A;
   --color-error: #DC2626;
-  --font-size-base: 16px;
+  --font-scale: 1;
 }
 
 html {
-  font-size: var(--font-size-base);
+  font-size: calc(16px * var(--font-scale));
   scroll-behavior: smooth;
 }
 
@@ -34,14 +34,52 @@ body {
   left: 0;
 }
 
-/* High contrast mode toggled via body class - wired up in Sprint 8 */
-body.high-contrast {
-  --color-primary: #0000EE;
-  filter: contrast(1.3);
-}
-
 /* Visible focus outline for keyboard navigation */
 :focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* ---- High contrast mode ---- */
+body.high-contrast {
+  --color-primary: #0000EE;
+  --color-secondary: #006400;
+  --color-error: #B30000;
+  filter: contrast(1.25);
+}
+
+body.high-contrast img,
+body.high-contrast svg {
+  filter: contrast(1.15);
+}
+
+/* ---- Font scaling ---- */
+body.font-size-normal {
+  --font-scale: 1;
+}
+body.font-size-large {
+  --font-scale: 1.15;
+}
+body.font-size-extra-large {
+  --font-scale: 1.3;
+}
+
+/* ---- Reduce motion ---- */
+body.reduce-motion,
+body.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Respect OS-level reduce-motion preference automatically too,
+   independent of our own in-app toggle */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

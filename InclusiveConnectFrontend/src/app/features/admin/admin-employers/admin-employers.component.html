@@ -1,0 +1,25 @@
+<section class="max-w-3xl mx-auto px-4 py-8">
+  <a routerLink="/admin" class="text-sm text-primary underline">&larr; Back to dashboard</a>
+  <h1 class="text-2xl font-bold text-gray-900 mt-2 mb-6">Pending employer verifications</h1>
+
+  <div *ngIf="loading" class="text-gray-500">Loading…</div>
+
+  <ul *ngIf="!loading" class="space-y-3">
+    <li *ngFor="let company of companies" class="border rounded-lg p-4 flex justify-between items-center">
+      <div>
+        <p class="font-medium text-gray-900">{{ company.companyName }}</p>
+        <p class="text-sm text-gray-500">{{ company.industry }} · {{ company.employerEmail }}</p>
+      </div>
+      <button
+        (click)="verify(company)"
+        [disabled]="verifyingId === company.id"
+        class="rounded bg-success text-white px-4 py-2 text-sm disabled:opacity-50"
+      >
+        {{ verifyingId === company.id ? 'Verifying…' : 'Verify' }}
+      </button>
+    </li>
+    <li *ngIf="!companies.length" class="text-center py-12 text-gray-500">
+      No pending verifications.
+    </li>
+  </ul>
+</section>
