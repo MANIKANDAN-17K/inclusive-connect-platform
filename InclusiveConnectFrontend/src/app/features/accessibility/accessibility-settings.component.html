@@ -33,15 +33,10 @@
     <p class="text-sm text-gray-500 mb-3">Adjusts text size across the entire site.</p>
     <div class="flex gap-2" role="radiogroup" aria-label="Font size">
       <button
-        *ngFor="let size of ['normal', 'large', 'extra-large']"
+        *ngFor="let size of fontSizes"
         role="radio"
         [attr.aria-checked]="prefs.fontSize === size"
         (click)="setFontSize(size)"
-        class="px-4 py-2 rounded border text-sm capitalize"
-        [class.bg-primary]="prefs.fontSize === size"
-        [class.text-white]="prefs.fontSize === size"
-        [class.border-primary]="prefs.fontSize === size"
-        [class.border-gray-300]="prefs.fontSize !== size"
       >
         {{ size === 'extra-large' ? 'Extra large' : size }}
       </button>

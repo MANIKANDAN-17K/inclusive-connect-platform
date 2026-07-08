@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AdminService } from '../../core/services/admin.service';
-import { AdminDashboard } from '../../core/models/admin.model';
+import { AdminService } from '../../../core/services/admin.service';
+import { AdminDashboard } from '../../../core/models/admin.model';
 
 @Component({
   selector: 'ic-admin-dashboard',
