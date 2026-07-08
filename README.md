@@ -256,7 +256,7 @@ This project follows a structured software development lifecycle.
 ## Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/inclusive-connect.git
+git clone https://github.com/MANIKANDAN-17K/inclusive-connect.git
 ```
 
 ## Backend
