@@ -21,8 +21,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public NotificationServiceImpl(NotificationRepository notificationRepository,
-                                   UserRepository userRepository,
-                                   SimpMessagingTemplate messagingTemplate) {
+            UserRepository userRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.messagingTemplate = messagingTemplate;
@@ -54,7 +54,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void createAndPush(Long userId, String title, String message,
-                              Notification.NotificationType type, String linkUrl) {
+            Notification.NotificationType type, String linkUrl) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -69,12 +69,13 @@ public class NotificationServiceImpl implements NotificationService {
         Notification saved = notificationRepository.save(notification);
         NotificationResponse response = toResponse(saved);
 
-        // Push in real time to this specific user, if they're currently connected
+        // Push in real time to this specific user, if they're currently connected.
+        // Spring's user-destination resolver matches by Spring Security principal name,
+        // which for this app is the user's email (User.getUsername() = email).
         messagingTemplate.convertAndSendToUser(
-                userId.toString(),
+                user.getEmail(),
                 "/queue/notifications",
-                response
-        );
+                response);
     }
 
     private NotificationResponse toResponse(Notification n) {

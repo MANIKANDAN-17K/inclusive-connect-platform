@@ -61,4 +61,27 @@ public class ConnectionController {
         List<ConnectionResponse> response = connectionService.getMyConnections(currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Connections fetched", response));
     }
+
+    @GetMapping("/sent")
+    public ResponseEntity<ApiResponse<List<ConnectionRequestResponse>>> getSentRequests(
+            @AuthenticationPrincipal User currentUser) {
+        List<ConnectionRequestResponse> response = connectionService.getSentRequests(currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.success("Sent requests fetched", response));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<ApiResponse<Void>> removeConnection(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long userId) {
+        connectionService.removeConnection(currentUser.getId(), userId);
+        return ResponseEntity.ok(ApiResponse.success("Connection removed", null));
+    }
+
+    @DeleteMapping("/request/{requestId}")
+    public ResponseEntity<ApiResponse<Void>> cancelRequest(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long requestId) {
+        connectionService.cancelRequest(currentUser.getId(), requestId);
+        return ResponseEntity.ok(ApiResponse.success("Request cancelled", null));
+    }
 }

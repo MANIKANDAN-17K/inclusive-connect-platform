@@ -1,0 +1,80 @@
+<div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Pending Connection Requests -->
+    <section *ngIf="loadingPending || pendingRequests.length">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span
+                class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                {{ pendingRequests.length }}
+            </span>
+            Pending Requests
+        </h2>
+        <div *ngIf="loadingPending" class="text-sm text-gray-400 animate-pulse">Loading…</div>
+        <div class="grid gap-3 sm:grid-cols-2">
+            <div *ngFor="let req of pendingRequests"
+                class="bg-white border rounded-xl p-4 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700">
+                        {{ req.senderName.charAt(0) | uppercase }}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-sm text-gray-900">{{ req.senderName }}</p>
+                        <p class="text-xs text-gray-500">wants to connect</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button (click)="acceptRequest(req)" [disabled]="acceptingId === req.id"
+                        id="accept-request-{{ req.id }}"
+                        class="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 font-medium disabled:opacity-50 transition-colors">
+                        Accept
+                    </button>
+                    <button (click)="rejectRequest(req)" id="reject-request-{{ req.id }}"
+                        class="rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 text-xs px-3 py-1.5 font-medium transition-colors">
+                        Ignore
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Connections -->
+    <section>
+        <h2 class="text-lg font-bold text-gray-900 mb-4">My Network</h2>
+        <div *ngIf="loadingConnections" class="text-sm text-gray-400 animate-pulse">Loading connections…</div>
+
+        <div *ngIf="!loadingConnections && !connections.length" class="text-center py-16 text-gray-400">
+            <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <p class="font-medium text-gray-500">No connections yet</p>
+            <p class="text-sm mt-1">Start by applying for jobs and connecting with employers.</p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div *ngFor="let conn of connections"
+                class="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-3">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                        {{ conn.name.charAt(0) | uppercase }}
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-semibold text-gray-900 text-sm truncate">{{ conn.name }}</p>
+                        <p class="text-xs text-gray-500 truncate mt-0.5">{{ conn.headline || 'No headline' }}</p>
+                    </div>
+                </div>
+                <button (click)="messageConnection(conn)" id="message-{{ conn.userId }}"
+                    class="w-full rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium py-2 transition-colors flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    Message
+                </button>
+            </div>
+        </div>
+    </section>
+
+</div>
