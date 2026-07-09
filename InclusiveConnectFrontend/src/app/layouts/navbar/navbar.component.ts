@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AppNotification } from '../../core/models/notification.model';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'ic-navbar',
@@ -15,29 +16,59 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private router = inject(Router);
+
   isAdmin = false;
   isLoggedIn = false;
   showDropdown = false;
   unreadCount = 0;
   notifications: AppNotification[] = [];
 
-  ngOnInit(): void {
-    this.isLoggedIn = this.authService.isAuthenticated();
+  private routerSub: Subscription | null = null;
+  private unreadSub: Subscription | null = null;
+  private notifSub: Subscription | null = null;
 
-    if (this.isLoggedIn) {
+  ngOnInit(): void {
+    this.updateLoginState();
+
+    this.routerSub = this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.updateLoginState();
+    });
+  }
+
+  private updateLoginState(): void {
+    const wasLoggedIn = this.isLoggedIn;
+    this.isLoggedIn = this.authService.isAuthenticated();
+    this.isAdmin = localStorage.getItem('ic_role') === 'ROLE_ADMIN';
+
+    if (this.isLoggedIn && !wasLoggedIn) {
+      this.unreadSub?.unsubscribe();
+      this.notifSub?.unsubscribe();
+
       this.notificationService.refreshUnreadCount();
       this.notificationService.connectRealtime();
-      this.isAdmin = localStorage.getItem('ic_role') === 'ROLE_ADMIN';
-      this.notificationService.unreadCount$.subscribe((count) => {
+
+      this.unreadSub = this.notificationService.unreadCount$.subscribe((count) => {
         this.unreadCount = count;
       });
 
-      this.notificationService.newNotification$.subscribe((notification) => {
+      this.notifSub = this.notificationService.newNotification$.subscribe((notification) => {
         if (notification) {
           this.notifications = [notification, ...this.notifications];
         }
       });
+    } else if (!this.isLoggedIn && wasLoggedIn) {
+      this.clearSubscriptions();
     }
+  }
+
+  private clearSubscriptions(): void {
+    this.unreadSub?.unsubscribe();
+    this.unreadSub = null;
+    this.notifSub?.unsubscribe();
+    this.notifSub = null;
+    this.notificationService.disconnect();
   }
 
   toggleDropdown(): void {
@@ -65,13 +96,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.notificationService.disconnect();
+    this.clearSubscriptions();
     this.authService.logout();
     this.isLoggedIn = false;
     this.router.navigate(['/']);
   }
 
   ngOnDestroy(): void {
-    this.notificationService.disconnect();
+    this.routerSub?.unsubscribe();
+    this.clearSubscriptions();
   }
 }

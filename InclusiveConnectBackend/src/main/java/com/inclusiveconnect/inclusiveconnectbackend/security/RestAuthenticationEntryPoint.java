@@ -19,8 +19,8 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            AuthenticationException authException) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         ApiResponse<Void> body = ApiResponse.error("Authentication required to access this resource", List.of());
