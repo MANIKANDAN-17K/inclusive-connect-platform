@@ -15,6 +15,7 @@ public class CompanyResponse {
     private String description;
     private String companySize;
     private String logoUrl;
+    private String coverImageUrl;
     private boolean verified;
     private Long employerUserId;
 }

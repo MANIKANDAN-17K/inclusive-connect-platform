@@ -19,13 +19,19 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final com.inclusiveconnect.inclusiveconnectbackend.service.EmailService emailService;
+
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     public NotificationServiceImpl(NotificationRepository notificationRepository,
             UserRepository userRepository,
-            SimpMessagingTemplate messagingTemplate) {
+            SimpMessagingTemplate messagingTemplate,
+            com.inclusiveconnect.inclusiveconnectbackend.service.EmailService emailService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.messagingTemplate = messagingTemplate;
+        this.emailService = emailService;
     }
 
     @Override
@@ -70,12 +76,122 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationResponse response = toResponse(saved);
 
         // Push in real time to this specific user, if they're currently connected.
-        // Spring's user-destination resolver matches by Spring Security principal name,
-        // which for this app is the user's email (User.getUsername() = email).
-        messagingTemplate.convertAndSendToUser(
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    user.getEmail(),
+                    "/queue/notifications",
+                    response);
+        } catch (Exception e) {
+            // Log or ignore WebSocket push failures
+        }
+
+        // Email notification dispatch (wrapped in try-catch so it never rolls back
+        // business database transactions)
+        try {
+            sendEmailNotificationIfApplicable(user, title, message, type, linkUrl);
+        } catch (Exception e) {
+            System.err.println("Failed to dispatch email notification: " + e.getMessage());
+        }
+    }
+
+    private void sendEmailNotificationIfApplicable(User user, String title, String message,
+            Notification.NotificationType type, String linkUrl) {
+
+        String templateName = null;
+        String actionText = "View Details";
+        java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+
+        placeholders.put("userName", user.getFirstName());
+        placeholders.put("actionUrl", frontendUrl + linkUrl);
+
+        switch (type) {
+            case CONNECTION_REQUEST:
+                templateName = "connection-request.html";
+                actionText = "Review Connection Request";
+                placeholders.put("senderName", safeExtract(message, null, " wants to connect"));
+                break;
+
+            case CONNECTION_ACCEPTED:
+                templateName = "connection-accepted.html";
+                actionText = "View Profile";
+                placeholders.put("senderName", safeExtract(message, null, " accepted your connection"));
+                break;
+
+            case JOB_APPLICATION_SUBMITTED:
+                templateName = "job-application.html";
+                actionText = "View My Applications";
+                placeholders.put("jobTitle", safeExtract(message, "Application for ", " at "));
+                placeholders.put("companyName", safeExtract(message, " at ", " submitted"));
+                break;
+
+            case NEW_JOB_APPLICATION:
+                templateName = "job-application.html";
+                actionText = "Review Candidate Applications";
+                placeholders.put("senderName", safeExtract(message, null, " applied for "));
+                placeholders.put("jobTitle", safeExtract(message, " applied for ", " at "));
+                placeholders.put("companyName", safeExtract(message, " at ", null));
+                break;
+
+            case APPLICATION_SHORTLISTED:
+                templateName = "application-shortlisted.html";
+                actionText = "Check Application Status";
+                placeholders.put("jobTitle", safeExtract(message, "Shortlisted for ", " at "));
+                placeholders.put("companyName", safeExtract(message, " at ", null));
+                break;
+
+            case APPLICATION_REJECTED:
+                templateName = "application-rejected.html";
+                actionText = "Check Application Status";
+                placeholders.put("jobTitle", safeExtract(message, "Application update for ", " at "));
+                placeholders.put("companyName", safeExtract(message, " at ", null));
+                break;
+
+            case JOB_OFFER:
+                templateName = "job-offer.html";
+                actionText = "View Offer Details";
+                placeholders.put("jobTitle", safeExtract(message, "Job offer for ", " at "));
+                placeholders.put("companyName", safeExtract(message, " at ", null));
+                break;
+
+            case COMPANY_VERIFIED:
+                templateName = "company-verified.html";
+                actionText = "Go to Employer Profile";
+                placeholders.put("companyName", safeExtract(message, "Company ", " has been"));
+                break;
+
+            default:
+                // MESSAGE/SYSTEM or other types don't trigger emails
+                return;
+        }
+
+        emailService.sendHtmlNotificationEmail(
                 user.getEmail(),
-                "/queue/notifications",
-                response);
+                user.getFirstName(),
+                title,
+                frontendUrl + linkUrl,
+                actionText,
+                templateName,
+                placeholders);
+    }
+
+    private String safeExtract(String text, String startToken, String endToken) {
+        if (text == null)
+            return "";
+        int startIdx = 0;
+        if (startToken != null) {
+            int foundIdx = text.indexOf(startToken);
+            if (foundIdx == -1)
+                return "";
+            startIdx = foundIdx + startToken.length();
+        }
+        int endIdx = text.length();
+        if (endToken != null) {
+            int foundIdx = text.indexOf(endToken, startIdx);
+            if (foundIdx != -1) {
+                endIdx = foundIdx;
+            }
+        }
+        return text.substring(startIdx, endIdx).trim();
     }
 
     private NotificationResponse toResponse(Notification n) {

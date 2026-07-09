@@ -3,20 +3,92 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../../core/services/profile.service';
 import { Profile } from '../../../core/models/profile.model';
+import { FileUploadComponent } from '../../../shared/components/file-upload/file-upload.component';
 
 @Component({
   selector: 'ic-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);
   private fb = new FormBuilder();
 
-  profile: Profile | null  = null;
+  profile: Profile | null = null;
   loading = true;
   loadError: string | null = null;
+
+  // --- upload variables ---
+  photoUploading = false;
+  photoError: string | null = null;
+  resumeUploading = false;
+  resumeError: string | null = null;
+
+  uploadProfilePhoto(file: File): void {
+    this.photoUploading = true;
+    this.photoError = null;
+    this.profileService.uploadProfilePhoto(file).subscribe({
+      next: (res) => {
+        this.photoUploading = false;
+        if (this.profile) {
+          this.profile.profilePicture = res.data?.profilePictureUrl;
+        }
+      },
+      error: (err) => {
+        this.photoUploading = false;
+        this.photoError = err?.error?.message ?? 'Failed to upload profile photo.';
+      }
+    });
+  }
+
+  uploadResume(file: File): void {
+    this.resumeUploading = true;
+    this.resumeError = null;
+    this.profileService.uploadResume(file).subscribe({
+      next: (res) => {
+        this.resumeUploading = false;
+        if (this.profile) {
+          this.profile.resumeUrl = res.data?.resumeUrl;
+          this.profile.resumeFileName = res.data?.resumeFileName;
+          this.profile.resumeUploadedAt = res.data?.resumeUploadedAt;
+        }
+      },
+      error: (err) => {
+        this.resumeUploading = false;
+        this.resumeError = err?.error?.message ?? 'Failed to upload resume.';
+      }
+    });
+  }
+
+  deleteResume(): void {
+    if (!confirm('Are you sure you want to delete your resume?')) return;
+    this.profileService.deleteResume().subscribe({
+      next: () => {
+        if (this.profile) {
+          this.profile.resumeUrl = undefined;
+          this.profile.resumeFileName = undefined;
+          this.profile.resumeUploadedAt = undefined;
+        }
+      },
+      error: (err) => {
+        this.resumeError = err?.error?.message ?? 'Failed to delete resume.';
+      }
+    });
+  }
+
+  onAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const maxSizeBytes = 5 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        alert('Profile picture must be less than 5 MB.');
+        return;
+      }
+      this.uploadProfilePhoto(file);
+    }
+  }
 
   // --- basic info edit ---
   editingBasicInfo = false;
@@ -97,29 +169,29 @@ export class ProfileComponent implements OnInit {
   }
 
   saveBasicInfo(): void {
-  this.savingBasicInfo = true;
-  const raw = this.basicInfoForm.getRawValue();
+    this.savingBasicInfo = true;
+    const raw = this.basicInfoForm.getRawValue();
 
-  this.profileService
-    .updateProfile({
-      headline: raw.headline ?? undefined,
-      location: raw.location ?? undefined,
-      about: raw.about ?? undefined,
-      linkedinUrl: raw.linkedinUrl ?? undefined,
-      githubUrl: raw.githubUrl ?? undefined,
-      portfolioUrl: raw.portfolioUrl ?? undefined,
-    })
-    .subscribe({
-      next: (res) => {
-        this.profile = res.data ?? this.profile;
-        this.savingBasicInfo = false;
-        this.editingBasicInfo = false;
-      },
-      error: () => {
-        this.savingBasicInfo = false;
-      },
-    });
-}
+    this.profileService
+      .updateProfile({
+        headline: raw.headline ?? undefined,
+        location: raw.location ?? undefined,
+        about: raw.about ?? undefined,
+        linkedinUrl: raw.linkedinUrl ?? undefined,
+        githubUrl: raw.githubUrl ?? undefined,
+        portfolioUrl: raw.portfolioUrl ?? undefined,
+      })
+      .subscribe({
+        next: (res) => {
+          this.profile = res.data ?? this.profile;
+          this.savingBasicInfo = false;
+          this.editingBasicInfo = false;
+        },
+        error: () => {
+          this.savingBasicInfo = false;
+        },
+      });
+  }
 
   // --- education ---
   submitEducation(): void {

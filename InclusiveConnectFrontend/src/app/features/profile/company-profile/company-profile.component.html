@@ -2,44 +2,69 @@
   <div class="max-w-3xl mx-auto">
 
     <!-- ================= VIEW MODE ================= -->
-    <div
-      *ngIf="hasCompany && company && !editing"
-      class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
-    >
+    <div *ngIf="hasCompany && company && !editing"
+      class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
 
-      <!-- Header -->
-      <div class="bg-gradient-to-r from-primary to-blue-600 p-8 text-white">
-        <div class="flex justify-between items-start">
+      <!-- Cover Image & Branding Header -->
+      <div class="relative bg-gradient-to-r from-primary to-blue-600 p-8 text-white min-h-[200px] flex items-end">
+        <img *ngIf="company.coverImageUrl" [src]="company.coverImageUrl" alt="Company Cover"
+          class="absolute inset-0 w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-          <div>
-            <h1 class="text-3xl font-bold">
-              {{ company.companyName }}
-            </h1>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between w-full gap-4">
+          <div class="flex items-center gap-4">
+            <!-- Company Logo -->
+            <div
+              class="relative group w-20 h-20 rounded-xl bg-white border border-gray-200 flex items-center justify-center overflow-hidden shadow-md flex-shrink-0">
+              <img *ngIf="company.logoUrl" [src]="company.logoUrl" alt="Company Logo"
+                class="w-full h-full object-contain p-2" />
+              <span *ngIf="!company.logoUrl" class="text-3xl">🏢</span>
 
-            <p class="text-white/80 mt-2">
-              Welcome to your company profile
-            </p>
+              <!-- Hover Upload Logo Overlay -->
+              <label
+                class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity duration-200 text-white text-[9px] font-medium text-center">
+                <i class="fas fa-camera text-base mb-1"></i>
+                <span>Upload Logo</span>
+                <input type="file" accept="image/png,image/jpeg,image/jpg,image/svg+xml" class="hidden"
+                  (change)="onLogoSelected($event)" [disabled]="logoUploading" />
+              </label>
+              <!-- logo spinner -->
+              <div *ngIf="logoUploading" class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+
+            <div>
+              <h1 class="text-3xl font-bold drop-shadow-md">
+                {{ company.companyName }}
+              </h1>
+              <div class="mt-2 flex items-center gap-3">
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                  [class.bg-green-500]="company.verified" [class.text-white]="company.verified"
+                  [class.bg-yellow-400]="!company.verified" [class.text-gray-900]="!company.verified">
+                  {{ company.verified ? '✔ Verified' : '⏳ Pending' }}
+                </span>
+                <span class="text-white/80 text-sm">Welcome to your company profile</span>
+              </div>
+            </div>
           </div>
 
-          <button
-            class="bg-white text-primary font-medium px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-            (click)="startEditing()"
-          >
-            ✏️ Edit Profile
-          </button>
+          <!-- Cover Photo Update Button -->
+          <div class="relative flex items-center gap-2">
+            <label
+              class="cursor-pointer bg-white/20 backdrop-blur-md hover:bg-white/30 text-white font-medium px-4 py-2 rounded-lg transition text-sm flex items-center gap-1.5 border border-white/30">
+              <i class="fas fa-image"></i>
+              <span>{{ coverUploading ? 'Uploading...' : 'Update Cover' }}</span>
+              <input type="file" accept="image/png,image/jpeg,image/jpg" class="hidden"
+                (change)="onCoverSelected($event)" [disabled]="coverUploading" />
+            </label>
 
-        </div>
-
-        <div class="mt-5">
-          <span
-            class="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
-            [class.bg-green-500]="company.verified"
-            [class.text-white]="company.verified"
-            [class.bg-yellow-100]="!company.verified"
-            [class.text-yellow-800]="!company.verified"
-          >
-            {{ company.verified ? '✔ Verified Employer' : '⏳ Verification Pending' }}
-          </span>
+            <button
+              class="bg-white text-primary font-medium px-4 py-2 rounded-lg hover:bg-gray-100 transition text-sm flex items-center gap-1.5"
+              (click)="startEditing()">
+              ✏️ Edit Details
+            </button>
+          </div>
         </div>
       </div>
 
@@ -47,14 +72,9 @@
 
       <div class="p-8 space-y-6">
 
-        <div
-          class="grid md:grid-cols-2 gap-6"
-        >
+        <div class="grid md:grid-cols-2 gap-6">
 
-          <div
-            class="bg-gray-50 rounded-xl p-5 border"
-            *ngIf="company.industry"
-          >
+          <div class="bg-gray-50 rounded-xl p-5 border" *ngIf="company.industry">
             <p class="text-xs uppercase tracking-wide text-gray-500">
               Industry
             </p>
@@ -64,10 +84,7 @@
             </p>
           </div>
 
-          <div
-            class="bg-gray-50 rounded-xl p-5 border"
-            *ngIf="company.companySize"
-          >
+          <div class="bg-gray-50 rounded-xl p-5 border" *ngIf="company.companySize">
             <p class="text-xs uppercase tracking-wide text-gray-500">
               Company Size
             </p>
@@ -79,27 +96,18 @@
 
         </div>
 
-        <div
-          *ngIf="company.website"
-          class="bg-gray-50 rounded-xl border p-5"
-        >
+        <div *ngIf="company.website" class="bg-gray-50 rounded-xl border p-5">
           <p class="text-xs uppercase tracking-wide text-gray-500">
             Website
           </p>
 
-          <a
-            [href]="company.website"
-            target="_blank"
-            class="text-primary hover:underline break-all text-lg font-medium"
-          >
+          <a [href]="company.website" target="_blank"
+            class="text-primary hover:underline break-all text-lg font-medium">
             {{ company.website }}
           </a>
         </div>
 
-        <div
-          *ngIf="company.description"
-          class="bg-gray-50 rounded-xl border p-5"
-        >
+        <div *ngIf="company.description" class="bg-gray-50 rounded-xl border p-5">
           <p class="text-xs uppercase tracking-wide text-gray-500 mb-3">
             About Company
           </p>
@@ -109,29 +117,50 @@
           </p>
         </div>
 
+        <!-- Branding Assets Section -->
+        <div class="bg-gray-50 rounded-xl border p-5">
+          <p class="text-xs uppercase tracking-wide text-gray-500 mb-4 font-semibold">
+            Update Branding Assets
+          </p>
+          <div class="grid md:grid-cols-2 gap-6">
+            <!-- Logo Uploader -->
+            <div>
+              <p class="text-xs font-semibold text-gray-700 mb-2">Company Logo (JPEG, PNG, SVG up to 5MB)</p>
+              <ic-file-upload [acceptTypes]="['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']" [maxSizeMB]="5"
+                buttonText="Upload Logo" dropPlaceholder="Drag & drop logo here" [isUploading]="logoUploading"
+                label="Logo Upload" (fileSelected)="uploadCompanyLogo($event)">
+              </ic-file-upload>
+              <p class="text-red-500 text-xs mt-1" *ngIf="logoError">
+                <i class="fas fa-exclamation-circle mr-1"></i> {{ logoError }}
+              </p>
+            </div>
+
+            <!-- Cover Uploader -->
+            <div>
+              <p class="text-xs font-semibold text-gray-700 mb-2">Cover Image (JPEG, PNG up to 10MB)</p>
+              <ic-file-upload [acceptTypes]="['image/png', 'image/jpeg', 'image/jpg']" [maxSizeMB]="10"
+                buttonText="Upload Cover" dropPlaceholder="Drag & drop cover here" [isUploading]="coverUploading"
+                label="Cover Upload" (fileSelected)="uploadCompanyCover($event)">
+              </ic-file-upload>
+              <p class="text-red-500 text-xs mt-1" *ngIf="coverError">
+                <i class="fas fa-exclamation-circle mr-1"></i> {{ coverError }}
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
 
     <!-- ================= FORM ================= -->
 
-    <div
-      *ngIf="!hasCompany || editing"
-      class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8"
-    >
+    <div *ngIf="!hasCompany || editing" class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
 
-      <form
-        [formGroup]="form"
-        (ngSubmit)="submit()"
-        class="space-y-6"
-        aria-labelledby="company-heading"
-      >
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6" aria-labelledby="company-heading">
 
         <div>
-          <h1
-            id="company-heading"
-            class="text-3xl font-bold text-gray-900"
-          >
+          <h1 id="company-heading" class="text-3xl font-bold text-gray-900">
             {{ hasCompany ? 'Edit Company Profile' : 'Create Company Profile' }}
           </h1>
 
@@ -143,102 +172,61 @@
         <!-- Company Name -->
 
         <div>
-          <label
-            for="companyName"
-            class="block mb-2 font-medium text-gray-700"
-          >
+          <label for="companyName" class="block mb-2 font-medium text-gray-700">
             Company Name
           </label>
 
-          <input
-            id="companyName"
-            formControlName="companyName"
-            class="w-full rounded-xl border border-gray-300 px-4 py-3
-                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
-          />
+          <input id="companyName" formControlName="companyName" class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" />
         </div>
 
         <!-- Industry -->
 
         <div>
-          <label
-            for="industry"
-            class="block mb-2 font-medium text-gray-700"
-          >
+          <label for="industry" class="block mb-2 font-medium text-gray-700">
             Industry
           </label>
 
-          <input
-            id="industry"
-            formControlName="industry"
-            class="w-full rounded-xl border border-gray-300 px-4 py-3
-                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
-          />
+          <input id="industry" formControlName="industry" class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" />
         </div>
 
         <!-- Company Size -->
 
         <div>
-          <label
-            for="companySize"
-            class="block mb-2 font-medium text-gray-700"
-          >
+          <label for="companySize" class="block mb-2 font-medium text-gray-700">
             Company Size
           </label>
 
-          <input
-            id="companySize"
-            formControlName="companySize"
-            placeholder="e.g. 51–200 Employees"
-            class="w-full rounded-xl border border-gray-300 px-4 py-3
-                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
-          />
+          <input id="companySize" formControlName="companySize" placeholder="e.g. 51–200 Employees" class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" />
         </div>
 
         <!-- Website -->
 
         <div>
-          <label
-            for="website"
-            class="block mb-2 font-medium text-gray-700"
-          >
+          <label for="website" class="block mb-2 font-medium text-gray-700">
             Website
           </label>
 
-          <input
-            id="website"
-            formControlName="website"
-            placeholder="https://example.com"
-            class="w-full rounded-xl border border-gray-300 px-4 py-3
-                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
-          />
+          <input id="website" formControlName="website" placeholder="https://example.com" class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" />
         </div>
 
         <!-- Description -->
 
         <div>
-          <label
-            for="description"
-            class="block mb-2 font-medium text-gray-700"
-          >
+          <label for="description" class="block mb-2 font-medium text-gray-700">
             About Company
           </label>
 
-          <textarea
-            id="description"
-            rows="5"
-            formControlName="description"
-            class="w-full rounded-xl border border-gray-300 px-4 py-3
-                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
-          ></textarea>
+          <textarea id="description" rows="5" formControlName="description" class="w-full rounded-xl border border-gray-300 px-4 py-3
+                   focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"></textarea>
         </div>
 
         <!-- Error -->
 
-        <div
-          *ngIf="errorMessage"
-          class="rounded-lg border border-red-200 bg-red-50 p-3 text-red-600"
-        >
+        <div *ngIf="errorMessage" class="rounded-lg border border-red-200 bg-red-50 p-3 text-red-600">
           {{ errorMessage }}
         </div>
 
@@ -246,21 +234,13 @@
 
         <div class="flex gap-3 pt-2">
 
-          <button
-            type="submit"
-            [disabled]="saving"
-            class="bg-primary hover:bg-blue-700 transition text-white
-                   rounded-xl px-6 py-3 font-medium disabled:opacity-60"
-          >
+          <button type="submit" [disabled]="saving" class="bg-primary hover:bg-blue-700 transition text-white
+                   rounded-xl px-6 py-3 font-medium disabled:opacity-60">
             {{ saving ? 'Saving...' : (hasCompany ? 'Save Changes' : 'Create Company') }}
           </button>
 
-          <button
-            *ngIf="hasCompany"
-            type="button"
-            (click)="editing=false"
-            class="rounded-xl border border-gray-300 px-6 py-3 hover:bg-gray-100 transition"
-          >
+          <button *ngIf="hasCompany" type="button" (click)="editing=false"
+            class="rounded-xl border border-gray-300 px-6 py-3 hover:bg-gray-100 transition">
             Cancel
           </button>
 

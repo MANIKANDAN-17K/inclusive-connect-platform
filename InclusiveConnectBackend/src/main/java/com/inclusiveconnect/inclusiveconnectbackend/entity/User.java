@@ -52,15 +52,26 @@ public class User implements UserDetails {
     @Column(name = "profile_picture")
     private String profilePicture;
 
+    @Builder.Default
     @Column(name = "is_verified", nullable = false)
     private boolean isVerified = false;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @Column(name = "resume_url")
+    private String resumeUrl;
+
+    @Column(name = "resume_filename")
+    private String resumeFileName;
+
+    @Column(name = "resume_uploaded_at")
+    private LocalDateTime resumeUploadedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

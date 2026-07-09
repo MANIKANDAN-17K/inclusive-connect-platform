@@ -6,6 +6,7 @@ export interface Company {
   description?: string;
   companySize?: string;
   logoUrl?: string;
+  coverImageUrl?: string;
   verified: boolean;
   employerUserId: number;
 }

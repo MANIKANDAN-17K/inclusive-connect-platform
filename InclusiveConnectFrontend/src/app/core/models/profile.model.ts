@@ -42,6 +42,8 @@ export interface Profile {
   githubUrl?: string;
   portfolioUrl?: string;
   resumeUrl?: string;
+  resumeFileName?: string;
+  resumeUploadedAt?: string;
   educations: Education[];
   experiences: Experience[];
   skills: Skill[];

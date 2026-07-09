@@ -22,13 +22,16 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final JobRepository jobRepository;
+    private final com.inclusiveconnect.inclusiveconnectbackend.service.NotificationService notificationService;
 
     public AdminServiceImpl(UserRepository userRepository,
-                            CompanyRepository companyRepository,
-                            JobRepository jobRepository) {
+            CompanyRepository companyRepository,
+            JobRepository jobRepository,
+            com.inclusiveconnect.inclusiveconnectbackend.service.NotificationService notificationService) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.jobRepository = jobRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -79,7 +82,20 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new IllegalArgumentException("Company not found"));
 
         company.setVerified(true);
-        return toCompanyResponse(companyRepository.save(company));
+        AdminCompanyResponse response = toCompanyResponse(companyRepository.save(company));
+
+        try {
+            notificationService.createAndPush(
+                    company.getUser().getId(),
+                    "Company Verified",
+                    "Company " + company.getCompanyName() + " has been verified.",
+                    com.inclusiveconnect.inclusiveconnectbackend.entity.Notification.NotificationType.COMPANY_VERIFIED,
+                    "/employer/profile");
+        } catch (Exception e) {
+            System.err.println("Failed to push company verification notification: " + e.getMessage());
+        }
+
+        return response;
     }
 
     private AdminUserResponse toUserResponse(User user) {

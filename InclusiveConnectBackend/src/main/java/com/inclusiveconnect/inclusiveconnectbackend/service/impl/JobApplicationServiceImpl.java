@@ -25,15 +25,18 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
+    private final com.inclusiveconnect.inclusiveconnectbackend.service.NotificationService notificationService;
 
     public JobApplicationServiceImpl(JobApplicationRepository applicationRepository,
-                                     JobRepository jobRepository,
-                                     UserRepository userRepository,
-                                     ProfileRepository profileRepository) {
+            JobRepository jobRepository,
+            UserRepository userRepository,
+            ProfileRepository profileRepository,
+            com.inclusiveconnect.inclusiveconnectbackend.service.NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
         this.jobRepository = jobRepository;
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -64,7 +67,34 @@ public class JobApplicationServiceImpl implements JobApplicationService {
                 .resumeUrl(resumeUrl)
                 .build();
 
-        return toResponse(applicationRepository.save(application));
+        JobApplication saved = applicationRepository.save(application);
+
+        // 1. Notify Candidate
+        try {
+            notificationService.createAndPush(
+                    candidate.getId(),
+                    "Application Submitted",
+                    "Application for " + job.getTitle() + " at " + job.getCompany().getCompanyName() + " submitted.",
+                    com.inclusiveconnect.inclusiveconnectbackend.entity.Notification.NotificationType.JOB_APPLICATION_SUBMITTED,
+                    "/applications");
+        } catch (Exception e) {
+            System.err.println("Failed to push candidate job application notification: " + e.getMessage());
+        }
+
+        // 2. Notify Employer
+        try {
+            notificationService.createAndPush(
+                    job.getCompany().getUser().getId(),
+                    "New Job Application",
+                    candidate.getFirstName() + " " + candidate.getLastName() + " applied for " + job.getTitle() + " at "
+                            + job.getCompany().getCompanyName() + ".",
+                    com.inclusiveconnect.inclusiveconnectbackend.entity.Notification.NotificationType.NEW_JOB_APPLICATION,
+                    "/employer/jobs/" + job.getId() + "/applications");
+        } catch (Exception e) {
+            System.err.println("Failed to push employer new job application notification: " + e.getMessage());
+        }
+
+        return toResponse(saved);
     }
 
     @Override
@@ -92,12 +122,47 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
     @Override
     @Transactional
-    public JobApplicationResponse updateApplicationStatus(Long employerUserId, Long applicationId, UpdateApplicationStatusRequest request) {
+    public JobApplicationResponse updateApplicationStatus(Long employerUserId, Long applicationId,
+            UpdateApplicationStatusRequest request) {
         JobApplication application = applicationRepository.findByIdAndJob_Company_User_Id(applicationId, employerUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
-        application.setStatus(parseStatus(request.getStatus()));
-        return toResponse(applicationRepository.save(application));
+        JobApplication.ApplicationStatus newStatus = parseStatus(request.getStatus());
+        application.setStatus(newStatus);
+        JobApplication saved = applicationRepository.save(application);
+
+        // Notify candidate about status update
+        try {
+            if (newStatus == JobApplication.ApplicationStatus.SHORTLISTED) {
+                notificationService.createAndPush(
+                        application.getCandidate().getId(),
+                        "Application Shortlisted",
+                        "Shortlisted for " + application.getJob().getTitle() + " at "
+                                + application.getJob().getCompany().getCompanyName() + ".",
+                        com.inclusiveconnect.inclusiveconnectbackend.entity.Notification.NotificationType.APPLICATION_SHORTLISTED,
+                        "/applications");
+            } else if (newStatus == JobApplication.ApplicationStatus.REJECTED) {
+                notificationService.createAndPush(
+                        application.getCandidate().getId(),
+                        "Application Update",
+                        "Application update for " + application.getJob().getTitle() + " at "
+                                + application.getJob().getCompany().getCompanyName() + ".",
+                        com.inclusiveconnect.inclusiveconnectbackend.entity.Notification.NotificationType.APPLICATION_REJECTED,
+                        "/applications");
+            } else if (newStatus == JobApplication.ApplicationStatus.HIRED) {
+                notificationService.createAndPush(
+                        application.getCandidate().getId(),
+                        "Job Offer Received",
+                        "Job offer for " + application.getJob().getTitle() + " at "
+                                + application.getJob().getCompany().getCompanyName() + ".",
+                        com.inclusiveconnect.inclusiveconnectbackend.entity.Notification.NotificationType.JOB_OFFER,
+                        "/applications");
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to push candidate application status notification: " + e.getMessage());
+        }
+
+        return toResponse(saved);
     }
 
     private JobApplication.ApplicationStatus parseStatus(String raw) {

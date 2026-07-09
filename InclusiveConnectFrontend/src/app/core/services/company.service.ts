@@ -35,4 +35,16 @@ export class CompanyService {
   updateCompany(payload: UpdateCompanyPayload): Observable<ApiResponse<Company>> {
     return this.http.put<ApiResponse<Company>>(this.baseUrl, payload);
   }
+
+  uploadCompanyLogo(file: File): Observable<ApiResponse<{ logoUrl: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ logoUrl: string }>>(`${environment.apiUrl}/company/logo`, formData);
+  }
+
+  uploadCompanyCover(file: File): Observable<ApiResponse<{ coverImageUrl: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ coverImageUrl: string }>>(`${environment.apiUrl}/company/cover`, formData);
+  }
 }
