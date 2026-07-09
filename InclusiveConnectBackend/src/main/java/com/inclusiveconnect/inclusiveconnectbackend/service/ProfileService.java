@@ -27,4 +27,14 @@ public interface ProfileService {
     ProfileResponse.SkillDto addSkill(Long userId, SkillRequest request);
 
     void deleteSkill(Long userId, Long skillId);
+
+    com.inclusiveconnect.inclusiveconnectbackend.dto.response.ProfilePhotoResponse uploadProfilePhoto(Long userId,
+            org.springframework.web.multipart.MultipartFile file);
+
+    com.inclusiveconnect.inclusiveconnectbackend.dto.response.ResumeResponse uploadResume(Long userId,
+            org.springframework.web.multipart.MultipartFile file);
+
+    com.inclusiveconnect.inclusiveconnectbackend.dto.response.ResumeResponse getResume(Long userId);
+
+    void deleteResume(Long userId);
 }

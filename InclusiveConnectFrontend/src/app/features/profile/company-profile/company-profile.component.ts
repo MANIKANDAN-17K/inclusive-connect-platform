@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompanyService } from '../../../core/services/company.service';
 import { Company } from '../../../core/models/company.model';
+import { FileUploadComponent } from '../../../shared/components/file-upload/file-upload.component';
 
 @Component({
   selector: 'ic-company-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
   templateUrl: './company-profile.component.html',
 })
 export class CompanyProfileComponent implements OnInit {
@@ -18,6 +19,72 @@ export class CompanyProfileComponent implements OnInit {
   loading = true;
   hasCompany = false;
   editing = false;
+
+  // --- upload variables ---
+  logoUploading = false;
+  logoError: string | null = null;
+  coverUploading = false;
+  coverError: string | null = null;
+
+  uploadCompanyLogo(file: File): void {
+    this.logoUploading = true;
+    this.logoError = null;
+    this.companyService.uploadCompanyLogo(file).subscribe({
+      next: (res) => {
+        this.logoUploading = false;
+        if (this.company) {
+          this.company.logoUrl = res.data?.logoUrl;
+        }
+      },
+      error: (err) => {
+        this.logoUploading = false;
+        this.logoError = err?.error?.message ?? 'Failed to upload logo.';
+      }
+    });
+  }
+
+  uploadCompanyCover(file: File): void {
+    this.coverUploading = true;
+    this.coverError = null;
+    this.companyService.uploadCompanyCover(file).subscribe({
+      next: (res) => {
+        this.coverUploading = false;
+        if (this.company) {
+          this.company.coverImageUrl = res.data?.coverImageUrl;
+        }
+      },
+      error: (err) => {
+        this.coverUploading = false;
+        this.coverError = err?.error?.message ?? 'Failed to upload cover image.';
+      }
+    });
+  }
+
+  onLogoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const maxSizeBytes = 5 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        alert('Logo must be less than 5 MB.');
+        return;
+      }
+      this.uploadCompanyLogo(file);
+    }
+  }
+
+  onCoverSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const maxSizeBytes = 10 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        alert('Cover image must be less than 10 MB.');
+        return;
+      }
+      this.uploadCompanyCover(file);
+    }
+  }
 
   form = this.fb.group({
     companyName: ['', Validators.required],

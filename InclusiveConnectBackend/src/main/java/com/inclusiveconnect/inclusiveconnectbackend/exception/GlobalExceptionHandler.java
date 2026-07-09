@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
-    @ExceptionHandler({UnauthorizedException.class, AccessDeniedException.class})
+    @ExceptionHandler({ UnauthorizedException.class, AccessDeniedException.class })
     public ResponseEntity<ApiResponse<Void>> handleUnauthorized(RuntimeException ex) {
         return build(HttpStatus.FORBIDDEN, ex.getMessage());
     }
@@ -59,6 +59,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<ApiResponse<Void>> handleFileUpload(FileUploadException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidFileType(InvalidFileTypeException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(FileTooLargeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleFileTooLarge(FileTooLargeException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ApiResponse<Void>> handleFileStorage(FileStorageException ex) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded(
+            org.springframework.web.multipart.MaxUploadSizeExceededException ex) {
+        return build(HttpStatus.BAD_REQUEST,
+                "File size limit exceeded. Resumes must be <= 10MB; Profile/Logo must be <= 5MB.");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

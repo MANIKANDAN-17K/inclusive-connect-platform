@@ -84,4 +84,24 @@ export class ProfileService {
   deleteSkill(id: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/skills/${id}`);
   }
+
+  uploadProfilePhoto(file: File): Observable<ApiResponse<{ profilePictureUrl: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ profilePictureUrl: string }>>(`${this.baseUrl}/profile/photo`, formData);
+  }
+
+  uploadResume(file: File): Observable<ApiResponse<{ resumeUrl: string; resumeFileName: string; resumeUploadedAt: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ resumeUrl: string; resumeFileName: string; resumeUploadedAt: string }>>(`${this.baseUrl}/profile/resume`, formData);
+  }
+
+  getResume(): Observable<ApiResponse<{ resumeUrl: string; resumeFileName: string; resumeUploadedAt: string }>> {
+    return this.http.get<ApiResponse<{ resumeUrl: string; resumeFileName: string; resumeUploadedAt: string }>>(`${this.baseUrl}/profile/resume`);
+  }
+
+  deleteResume(): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/profile/resume`);
+  }
 }

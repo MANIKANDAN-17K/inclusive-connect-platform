@@ -33,6 +33,7 @@ public class Notification {
     @Column(name = "type", nullable = false, length = 30)
     private NotificationType type;
 
+    @Builder.Default
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
@@ -52,6 +53,8 @@ public class Notification {
     }
 
     public enum NotificationType {
-        CONNECTION_REQUEST, CONNECTION_ACCEPTED, JOB_APPLICATION, MESSAGE, SYSTEM
+        CONNECTION_REQUEST, CONNECTION_ACCEPTED, JOB_APPLICATION, MESSAGE, SYSTEM,
+        JOB_APPLICATION_SUBMITTED, NEW_JOB_APPLICATION, APPLICATION_SHORTLISTED,
+        APPLICATION_REJECTED, JOB_OFFER, COMPANY_VERIFIED
     }
 }

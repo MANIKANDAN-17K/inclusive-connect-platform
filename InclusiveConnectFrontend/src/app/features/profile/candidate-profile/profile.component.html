@@ -1,6 +1,7 @@
 <section class="max-w-4xl mx-auto px-4 py-8" *ngIf="!loading; else loadingBlock">
   <!-- Error Alert -->
-  <div *ngIf="loadError" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-start gap-3">
+  <div *ngIf="loadError"
+    class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-start gap-3">
     <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
     <span>{{ loadError }}</span>
   </div>
@@ -11,10 +12,28 @@
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div class="flex-1">
           <div class="flex items-center gap-4">
-            <!-- Avatar -->
-            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-200">
-              {{ p.firstName ? p.firstName[0] : '' }}
-              {{ p.lastName ? p.lastName[0] : '' }}
+            <!-- Avatar / Photo Upload -->
+            <div
+              class="relative group w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-200 overflow-hidden">
+              <img *ngIf="p.profilePicture" [src]="p.profilePicture" alt="Profile Picture"
+                class="w-full h-full object-cover" />
+              <ng-container *ngIf="!p.profilePicture">
+                {{ p.firstName ? p.firstName[0] : '' }}{{ p.lastName ? p.lastName[0] : '' }}
+              </ng-container>
+
+              <!-- Hover Upload Overlay -->
+              <label
+                class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity duration-200 text-white text-[10px] font-medium">
+                <i class="fas fa-camera text-base mb-1"></i>
+                <span>Update</span>
+                <input type="file" accept="image/png,image/jpeg,image/jpg" class="hidden"
+                  (change)="onAvatarSelected($event)" [disabled]="photoUploading" />
+              </label>
+
+              <!-- Loading spinner -->
+              <div *ngIf="photoUploading" class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
             </div>
             <div>
               <h1 class="text-2xl font-bold text-gray-900">{{ p.firstName }} {{ p.lastName }}</h1>
@@ -26,9 +45,7 @@
             </div>
           </div>
         </div>
-        <button 
-          *ngIf="!editingBasicInfo" 
-          (click)="startEditingBasicInfo()"
+        <button *ngIf="!editingBasicInfo" (click)="startEditingBasicInfo()"
           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors duration-200">
           <i class="fas fa-pen"></i> Edit Profile
         </button>
@@ -36,60 +53,119 @@
 
       <!-- About Section -->
       <div class="mt-4 pt-4 border-t border-gray-100">
-        <p class="text-gray-700 whitespace-pre-line">{{ p.about || 'No summary yet. Click "Edit Profile" to add one.' }}</p>
+        <p class="text-gray-700 whitespace-pre-line">{{ p.about || 'No summary yet. Click "Edit Profile" to add one.' }}
+        </p>
       </div>
 
       <!-- Social Links -->
       <div class="mt-4 flex flex-wrap gap-3">
-        <a *ngIf="p.linkedinUrl" [href]="p.linkedinUrl" target="_blank" class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+        <a *ngIf="p.linkedinUrl" [href]="p.linkedinUrl" target="_blank"
+          class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 transition-colors">
           <i class="fab fa-linkedin text-lg"></i> LinkedIn
         </a>
-        <a *ngIf="p.githubUrl" [href]="p.githubUrl" target="_blank" class="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors">
+        <a *ngIf="p.githubUrl" [href]="p.githubUrl" target="_blank"
+          class="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors">
           <i class="fab fa-github text-lg"></i> GitHub
         </a>
-        <a *ngIf="p.portfolioUrl" [href]="p.portfolioUrl" target="_blank" class="inline-flex items-center gap-1.5 text-sm text-purple-600 hover:text-purple-800 transition-colors">
+        <a *ngIf="p.portfolioUrl" [href]="p.portfolioUrl" target="_blank"
+          class="inline-flex items-center gap-1.5 text-sm text-purple-600 hover:text-purple-800 transition-colors">
           <i class="fas fa-globe text-lg"></i> Portfolio
         </a>
       </div>
 
       <!-- Edit Form -->
-      <form *ngIf="editingBasicInfo" [formGroup]="basicInfoForm" (ngSubmit)="saveBasicInfo()" class="mt-6 pt-6 border-t border-gray-200 space-y-4">
+      <form *ngIf="editingBasicInfo" [formGroup]="basicInfoForm" (ngSubmit)="saveBasicInfo()"
+        class="mt-6 pt-6 border-t border-gray-200 space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="headline" class="block text-sm font-medium text-gray-700 mb-1.5">Headline</label>
-            <input id="headline" formControlName="headline" placeholder="e.g. Senior Software Engineer" 
-                   class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            <input id="headline" formControlName="headline" placeholder="e.g. Senior Software Engineer"
+              class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           </div>
           <div>
             <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
             <input id="location" formControlName="location" placeholder="e.g. San Francisco, CA"
-                   class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+              class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           </div>
         </div>
 
         <div>
           <label for="about" class="block text-sm font-medium text-gray-700 mb-1.5">About</label>
           <textarea id="about" formControlName="about" rows="4" placeholder="Tell us about yourself..."
-                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all resize-none"></textarea>
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all resize-none"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <input formControlName="linkedinUrl" placeholder="LinkedIn URL" 
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+          <input formControlName="linkedinUrl" placeholder="LinkedIn URL"
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           <input formControlName="githubUrl" placeholder="GitHub URL"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           <input formControlName="portfolioUrl" placeholder="Portfolio URL"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         </div>
 
         <div class="flex gap-3 pt-2">
-          <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="savingBasicInfo">
+          <button type="submit"
+            class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="savingBasicInfo">
             <i class="fas fa-save"></i>
             {{ savingBasicInfo ? 'Saving…' : 'Save Changes' }}
           </button>
-          <button type="button" class="px-6 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-all duration-200" (click)="editingBasicInfo = false">Cancel</button>
+          <button type="button"
+            class="px-6 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-all duration-200"
+            (click)="editingBasicInfo = false">Cancel</button>
         </div>
       </form>
+    </div>
+
+    <!-- ========== RESUME ========== -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600">
+            <i class="fas fa-file-pdf text-sm"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-gray-900">Resume / CV</h2>
+        </div>
+      </div>
+
+      <!-- Upload Widget -->
+      <div *ngIf="!p.resumeUrl" class="space-y-3">
+        <ic-file-upload [acceptTypes]="['application/pdf']" [maxSizeMB]="10" buttonText="Upload Resume"
+          dropPlaceholder="Drag and drop your PDF resume here, or click to browse" [isUploading]="resumeUploading"
+          label="Resume Upload" (fileSelected)="uploadResume($event)">
+        </ic-file-upload>
+        <p class="text-red-500 text-xs mt-1" *ngIf="resumeError">
+          <i class="fas fa-exclamation-circle mr-1"></i> {{ resumeError }}
+        </p>
+      </div>
+
+      <!-- Display Uploaded Resume -->
+      <div *ngIf="p.resumeUrl"
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-red-600 text-xl shadow-sm">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-900 truncate max-w-xs sm:max-w-md">{{ p.resumeFileName || 'Resume.pdf' }}
+            </p>
+            <p class="text-xs text-gray-400 mt-0.5" *ngIf="p.resumeUploadedAt">
+              Uploaded on {{ p.resumeUploadedAt | date:'medium' }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <a [href]="p.resumeUrl" target="_blank"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+            <i class="fas fa-external-link-alt"></i> View
+          </a>
+          <button (click)="deleteResume()"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+            <i class="fas fa-trash-alt"></i> Remove
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ========== EDUCATION ========== -->
@@ -102,7 +178,9 @@
           <h2 class="text-lg font-semibold text-gray-900">Education</h2>
           <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{{ p.educations.length }}</span>
         </div>
-        <button class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors" (click)="showEducationForm = !showEducationForm">
+        <button
+          class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          (click)="showEducationForm = !showEducationForm">
           <i class="fas" [class.fa-plus]="!showEducationForm" [class.fa-times]="showEducationForm"></i>
           {{ showEducationForm ? 'Cancel' : 'Add Education' }}
         </button>
@@ -110,17 +188,22 @@
 
       <!-- Education List -->
       <div class="space-y-3" *ngIf="p.educations.length">
-        <div *ngFor="let edu of p.educations" class="flex items-start justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
+        <div *ngFor="let edu of p.educations"
+          class="flex items-start justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
           <div>
             <p class="font-semibold text-gray-900">{{ edu.institutionName }}</p>
-            <p class="text-sm text-gray-600">{{ edu.degree }} <span *ngIf="edu.fieldOfStudy">· {{ edu.fieldOfStudy }}</span></p>
+            <p class="text-sm text-gray-600">{{ edu.degree }} <span *ngIf="edu.fieldOfStudy">· {{ edu.fieldOfStudy
+                }}</span></p>
             <p class="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
               <i class="far fa-calendar-alt"></i>
               {{ edu.startDate }} – {{ edu.endDate || 'Present' }}
-              <span *ngIf="edu.cgpa" class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">CGPA: {{ edu.cgpa }}</span>
+              <span *ngIf="edu.cgpa" class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">CGPA: {{
+                edu.cgpa }}</span>
             </p>
           </div>
-          <button (click)="deleteEducation(edu.id)" class="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" aria-label="Delete education">
+          <button (click)="deleteEducation(edu.id)"
+            class="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+            aria-label="Delete education">
             <i class="fas fa-trash-alt"></i>
           </button>
         </div>
@@ -128,24 +211,27 @@
       <p *ngIf="!p.educations.length" class="text-sm text-gray-400 py-2">No education added yet.</p>
 
       <!-- Add Education Form -->
-      <form *ngIf="showEducationForm" [formGroup]="educationForm" (ngSubmit)="submitEducation()" class="mt-4 pt-4 border-t border-gray-200 space-y-3">
+      <form *ngIf="showEducationForm" [formGroup]="educationForm" (ngSubmit)="submitEducation()"
+        class="mt-4 pt-4 border-t border-gray-200 space-y-3">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input formControlName="institutionName" placeholder="Institution name" 
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+          <input formControlName="institutionName" placeholder="Institution name"
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           <input formControlName="degree" placeholder="Degree"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         </div>
         <input formControlName="fieldOfStudy" placeholder="Field of study"
-               class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+          class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         <div class="grid grid-cols-2 gap-3">
-          <input type="date" formControlName="startDate" 
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+          <input type="date" formControlName="startDate"
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           <input type="date" formControlName="endDate"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         </div>
         <input type="number" step="0.01" formControlName="cgpa" placeholder="CGPA (e.g. 8.5)"
-               class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
-        <button type="submit" class="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="savingEducation">
+          class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+        <button type="submit"
+          class="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="savingEducation">
           <i class="fas fa-plus mr-2"></i>
           {{ savingEducation ? 'Adding…' : 'Add Education' }}
         </button>
@@ -162,7 +248,9 @@
           <h2 class="text-lg font-semibold text-gray-900">Experience</h2>
           <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{{ p.experiences.length }}</span>
         </div>
-        <button class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors" (click)="showExperienceForm = !showExperienceForm">
+        <button
+          class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          (click)="showExperienceForm = !showExperienceForm">
           <i class="fas" [class.fa-plus]="!showExperienceForm" [class.fa-times]="showExperienceForm"></i>
           {{ showExperienceForm ? 'Cancel' : 'Add Experience' }}
         </button>
@@ -170,17 +258,22 @@
 
       <!-- Experience List -->
       <div class="space-y-3" *ngIf="p.experiences.length">
-        <div *ngFor="let exp of p.experiences" class="flex items-start justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
+        <div *ngFor="let exp of p.experiences"
+          class="flex items-start justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
           <div>
             <p class="font-semibold text-gray-900">{{ exp.jobTitle }}</p>
-            <p class="text-sm text-gray-600">{{ exp.companyName }} <span *ngIf="exp.employmentType" class="text-gray-400">· {{ exp.employmentType }}</span></p>
+            <p class="text-sm text-gray-600">{{ exp.companyName }} <span *ngIf="exp.employmentType"
+                class="text-gray-400">· {{ exp.employmentType }}</span></p>
             <p class="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
               <i class="far fa-calendar-alt"></i>
               {{ exp.startDate }} – {{ exp.currentlyWorking ? 'Present' : exp.endDate }}
-              <span *ngIf="exp.currentlyWorking" class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">Current</span>
+              <span *ngIf="exp.currentlyWorking"
+                class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">Current</span>
             </p>
           </div>
-          <button (click)="deleteExperience(exp.id)" class="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" aria-label="Delete experience">
+          <button (click)="deleteExperience(exp.id)"
+            class="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+            aria-label="Delete experience">
             <i class="fas fa-trash-alt"></i>
           </button>
         </div>
@@ -188,27 +281,31 @@
       <p *ngIf="!p.experiences.length" class="text-sm text-gray-400 py-2">No experience added yet.</p>
 
       <!-- Add Experience Form -->
-      <form *ngIf="showExperienceForm" [formGroup]="experienceForm" (ngSubmit)="submitExperience()" class="mt-4 pt-4 border-t border-gray-200 space-y-3">
+      <form *ngIf="showExperienceForm" [formGroup]="experienceForm" (ngSubmit)="submitExperience()"
+        class="mt-4 pt-4 border-t border-gray-200 space-y-3">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <input formControlName="companyName" placeholder="Company name"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           <input formControlName="jobTitle" placeholder="Job title"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         </div>
         <input formControlName="employmentType" placeholder="Employment type (e.g. Full-time)"
-               class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+          class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         <div class="grid grid-cols-2 gap-3">
           <input type="date" formControlName="startDate"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
           <input type="date" formControlName="endDate"
-                 class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all opacity-70" 
-                 [attr.disabled]="experienceForm.get('currentlyWorking')?.value ? '' : null" />
+            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all opacity-70"
+            [attr.disabled]="experienceForm.get('currentlyWorking')?.value ? '' : null" />
         </div>
         <label class="flex items-center gap-2.5 text-sm text-gray-700 cursor-pointer">
-          <input type="checkbox" formControlName="currentlyWorking" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+          <input type="checkbox" formControlName="currentlyWorking"
+            class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
           I currently work here
         </label>
-        <button type="submit" class="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="savingExperience">
+        <button type="submit"
+          class="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="savingExperience">
           <i class="fas fa-plus mr-2"></i>
           {{ savingExperience ? 'Adding…' : 'Add Experience' }}
         </button>
@@ -229,18 +326,19 @@
 
       <!-- Skill Tags -->
       <div class="flex flex-wrap gap-2 mb-4">
-        <span *ngFor="let skill of p.skills" 
-              class="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-gray-700 rounded-full text-sm border border-blue-100">
+        <span *ngFor="let skill of p.skills"
+          class="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-gray-700 rounded-full text-sm border border-blue-100">
           <i class="fas fa-tag text-xs text-blue-500"></i>
           {{ skill.skillName }}
           <span class="text-xs text-gray-400">·</span>
           <span class="text-xs font-medium" [class.text-green-600]="skill.proficiencyLevel === 'EXPERT'"
-                [class.text-blue-600]="skill.proficiencyLevel === 'ADVANCED'"
-                [class.text-yellow-600]="skill.proficiencyLevel === 'INTERMEDIATE'"
-                [class.text-gray-500]="skill.proficiencyLevel === 'BEGINNER'">
+            [class.text-blue-600]="skill.proficiencyLevel === 'ADVANCED'"
+            [class.text-yellow-600]="skill.proficiencyLevel === 'INTERMEDIATE'"
+            [class.text-gray-500]="skill.proficiencyLevel === 'BEGINNER'">
             {{ skill.proficiencyLevel | titlecase }}
           </span>
-          <button (click)="deleteSkill(skill.id)" class="text-gray-400 hover:text-red-500 transition-colors ml-1" aria-label="Remove skill">
+          <button (click)="deleteSkill(skill.id)" class="text-gray-400 hover:text-red-500 transition-colors ml-1"
+            aria-label="Remove skill">
             <i class="fas fa-times"></i>
           </button>
         </span>
@@ -248,23 +346,26 @@
       </div>
 
       <!-- Add Skill Form -->
-      <form [formGroup]="skillForm" (ngSubmit)="submitSkill()" class="flex flex-col sm:flex-row gap-3 items-end pt-4 border-t border-gray-200">
+      <form [formGroup]="skillForm" (ngSubmit)="submitSkill()"
+        class="flex flex-col sm:flex-row gap-3 items-end pt-4 border-t border-gray-200">
         <div class="flex-1 w-full">
           <label for="skillName" class="block text-sm font-medium text-gray-700 mb-1.5">Skill Name</label>
           <input id="skillName" formControlName="skillName" placeholder="e.g. Java, Python, React"
-                 class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" />
         </div>
         <div class="w-full sm:w-48">
           <label for="proficiencyLevel" class="block text-sm font-medium text-gray-700 mb-1.5">Level</label>
           <select id="proficiencyLevel" formControlName="proficiencyLevel"
-                  class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all bg-white">
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all bg-white">
             <option value="BEGINNER">Beginner</option>
             <option value="INTERMEDIATE">Intermediate</option>
             <option value="ADVANCED">Advanced</option>
             <option value="EXPERT">Expert</option>
           </select>
         </div>
-        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="savingSkill">
+        <button type="submit"
+          class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="savingSkill">
           <i class="fas fa-plus mr-2"></i>
           {{ savingSkill ? 'Adding…' : 'Add Skill' }}
         </button>

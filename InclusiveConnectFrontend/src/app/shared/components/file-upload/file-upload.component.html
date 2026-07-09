@@ -1,0 +1,45 @@
+<div class="file-upload-container" [class.drag-over]="isDragOver" [class.uploading]="isUploading"
+    [class.has-error]="!!errorMessage" role="button" tabindex="0" [attr.aria-label]="label"
+    (keydown.enter)="fileInput.click()" (keydown.space)="$event.preventDefault(); fileInput.click()"
+    (click)="fileInput.click()">
+
+    <input #fileInput type="file" class="hidden-file-input" [accept]="acceptTypes.join(',')"
+        (change)="onFileChange($event)" id="fileInput" />
+
+    <!-- Loading State Overlay -->
+    <div class="upload-loading-overlay animate-fade-in" *ngIf="isUploading">
+        <div class="spinner-glow"></div>
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Uploading file, please wait...</p>
+    </div>
+
+    <!-- Normal State Content -->
+    <div class="upload-content-wrapper" *ngIf="!isUploading">
+        <div class="upload-icon-wrapper">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        </div>
+
+        <div class="upload-text-wrapper">
+            <p class="drop-text font-medium text-gray-800">{{ dropPlaceholder }}</p>
+            <p class="requirements-text text-gray-400 text-xs mt-1">
+                Max size: {{ maxSizeMB }} MB | Allowed formats:
+                <span class="format-badge" *ngFor="let type of acceptTypes">
+                    {{ type.replace('image/', '').replace('application/', '').toUpperCase() }}
+                </span>
+            </p>
+        </div>
+
+        <button type="button" class="browse-button" (click)="$event.stopPropagation(); fileInput.click()">
+            {{ buttonText }}
+        </button>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="error-wrapper animate-slide-up" *ngIf="errorMessage && !isUploading" (click)="$event.stopPropagation()">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        <span class="error-message-text">{{ errorMessage }}</span>
+        <button type="button" class="close-error-btn" (click)="errorMessage = null" aria-label="Dismiss error">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>

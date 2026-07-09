@@ -13,26 +13,55 @@ export class ChatService implements OnDestroy {
   private baseUrl = `${environment.apiUrl}/chat`;
 
   private stompClient: Client | null = null;
-  private messageSubject = new Subject<Message>();
 
-  // Observable that components subscribe to for incoming real-time messages.
+  // A new Subject is created on every connect() so messages from
+  // previous conversations never bleed into the new one.
+  private messageSubject = new Subject<Message>();
   messages$ = this.messageSubject.asObservable();
 
-  // ---- REST: history ----
+  // Pending message to send as soon as the STOMP connection is established
+  private pendingMessage: { content: string; conversationId: number } | null = null;
+
+  // ---- REST ----
 
   getConversations(): Observable<ApiResponse<Conversation[]>> {
     return this.http.get<ApiResponse<Conversation[]>>(`${this.baseUrl}/conversations`);
   }
 
   getMessages(conversationId: number): Observable<ApiResponse<Message[]>> {
-    return this.http.get<ApiResponse<Message[]>>(`${this.baseUrl}/conversations/${conversationId}/messages`);
+    return this.http.get<ApiResponse<Message[]>>(
+      `${this.baseUrl}/conversations/${conversationId}/messages`
+    );
+  }
+
+  /**
+   * Call the REST endpoint to get (or create) a conversation with another user.
+   * This must be called BEFORE connect() when starting a brand-new conversation
+   * so the real conversation ID is known before subscribing to WebSocket topics.
+   */
+  startConversation(receiverId: number): Observable<ApiResponse<Conversation>> {
+    return this.http.post<ApiResponse<Conversation>>(
+      `${this.baseUrl}/conversations/start`,
+      { receiverId }
+    );
   }
 
   // ---- WebSocket: real-time ----
 
+  /**
+   * Connect to the STOMP broker and subscribe to the given conversation topic.
+   * Creates a fresh Subject so old messages don't bleed in.
+   */
   connect(conversationId: number): void {
+    // Disconnect any previous session first
+    this.disconnect();
+
     const token = localStorage.getItem('ic_access_token');
     if (!token) return;
+
+    // Fresh observable for this conversation
+    this.messageSubject = new Subject<Message>();
+    this.messages$ = this.messageSubject.asObservable();
 
     this.stompClient = new Client({
       webSocketFactory: () => new SockJS(environment.wsUrl) as any,
@@ -48,18 +77,39 @@ export class ChatService implements OnDestroy {
             this.messageSubject.next(message);
           }
         );
+
+        // Send any message that arrived before the connection was ready
+        if (this.pendingMessage) {
+          this._publish(this.pendingMessage.content, this.pendingMessage.conversationId);
+          this.pendingMessage = null;
+        }
+      },
+      onStompError: (frame) => {
+        console.error('STOMP error', frame);
       },
     });
 
     this.stompClient.activate();
   }
 
-  sendMessage(request: { content: string; conversationId?: number; receiverId?: number }): void {
-    if (!this.stompClient?.connected) return;
+  /**
+   * Send a message for an existing conversation.
+   * If the WebSocket isn't connected yet (first message in session),
+   * the message is queued and sent immediately when onConnect fires.
+   */
+  sendMessage(content: string, conversationId: number): void {
+    if (this.stompClient?.connected) {
+      this._publish(content, conversationId);
+    } else {
+      // Queue — will be flushed in onConnect
+      this.pendingMessage = { content, conversationId };
+    }
+  }
 
-    this.stompClient.publish({
+  private _publish(content: string, conversationId: number): void {
+    this.stompClient?.publish({
       destination: '/app/chat.send',
-      body: JSON.stringify(request),
+      body: JSON.stringify({ content, conversationId }),
     });
   }
 
@@ -68,6 +118,7 @@ export class ChatService implements OnDestroy {
       this.stompClient.deactivate();
     }
     this.stompClient = null;
+    this.pendingMessage = null;
   }
 
   ngOnDestroy(): void {

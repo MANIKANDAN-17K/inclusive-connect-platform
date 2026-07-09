@@ -39,6 +39,36 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", response));
     }
 
+    @PostMapping(value = "/api/v1/profile/photo", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<com.inclusiveconnect.inclusiveconnectbackend.dto.response.ProfilePhotoResponse>> uploadProfilePhoto(
+            @AuthenticationPrincipal User currentUser,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        var response = profileService.uploadProfilePhoto(currentUser.getId(), file);
+        return ResponseEntity.ok(ApiResponse.success("Profile photo uploaded successfully", response));
+    }
+
+    @PostMapping(value = "/api/v1/profile/resume", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<com.inclusiveconnect.inclusiveconnectbackend.dto.response.ResumeResponse>> uploadResume(
+            @AuthenticationPrincipal User currentUser,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        var response = profileService.uploadResume(currentUser.getId(), file);
+        return ResponseEntity.ok(ApiResponse.success("Resume uploaded successfully", response));
+    }
+
+    @GetMapping("/api/v1/profile/resume")
+    public ResponseEntity<ApiResponse<com.inclusiveconnect.inclusiveconnectbackend.dto.response.ResumeResponse>> getResume(
+            @AuthenticationPrincipal User currentUser) {
+        var response = profileService.getResume(currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.success("Resume metadata fetched successfully", response));
+    }
+
+    @DeleteMapping("/api/v1/profile/resume")
+    public ResponseEntity<ApiResponse<Void>> deleteResume(
+            @AuthenticationPrincipal User currentUser) {
+        profileService.deleteResume(currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.success("Resume deleted successfully"));
+    }
+
     // ---- Education ----
 
     @PostMapping("/api/v1/educations")

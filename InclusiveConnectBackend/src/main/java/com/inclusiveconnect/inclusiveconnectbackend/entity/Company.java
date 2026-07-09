@@ -39,6 +39,10 @@ public class Company {
     @Column(name = "logo_url")
     private String logoUrl;
 
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
+
+    @Builder.Default
     @Column(name = "verified", nullable = false)
     private boolean verified = false;
 
