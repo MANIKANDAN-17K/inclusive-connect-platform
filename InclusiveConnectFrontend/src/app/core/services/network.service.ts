@@ -14,6 +14,9 @@ export interface NetworkUser {
     mutualConnections: number;
     alreadyConnected: boolean;
     requestPending: boolean;
+    // Extended display fields (optional — populated when returned by backend)
+    skills?: string[];
+    openToWork?: boolean;
 }
 
 export interface NetworkUsersPage {

@@ -1,49 +1,312 @@
-<nav class="border-b bg-white">
-  <div class="max-w-5xl mx-auto px-4 flex items-center justify-between h-16">
-    <a routerLink="/" class="font-bold text-primary">Inclusive Connect</a>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <div class="flex items-center gap-6 text-sm">
-      <a routerLink="/jobs" class="text-gray-700 hover:text-primary">Jobs</a>
-      <a routerLink="/accessibility" class="text-gray-700 hover:text-primary" aria-label="Accessibility settings">
-        ♿
-      </a>
-      <ng-container *ngIf="isLoggedIn; else guestLinks">
-        <a routerLink="/applications" class="text-gray-700 hover:text-primary">Applications</a>
-        <a routerLink="/network" class="text-gray-700 hover:text-primary">Network</a>
-        <a routerLink="/chat" class="text-gray-700 hover:text-primary">Messages</a>
-        <a routerLink="/profile" class="text-gray-700 hover:text-primary">Profile</a>
-        <a *ngIf="isAdmin" routerLink="/admin" class="text-gray-700 hover:text-primary">Admin</a>
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-nav">
+  <div class="max-w-content mx-auto px-4 sm:px-6">
+    <div class="flex h-16 items-center gap-3">
 
-        <!-- Notification bell -->
-        <div class="relative">
-          <button (click)="toggleDropdown()" class="relative" aria-label="Notifications"
-            [attr.aria-expanded]="showDropdown">
-            🔔
-            <span *ngIf="unreadCount > 0"
-              class="absolute -top-1 -right-1 bg-error text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              {{ unreadCount > 9 ? '9+' : unreadCount }}
-            </span>
-          </button>
-
-          <div *ngIf="showDropdown"
-            class="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
-            <p *ngIf="!notifications.length" class="p-4 text-sm text-gray-500">No notifications yet.</p>
-            <button *ngFor="let n of notifications" (click)="onNotificationClick(n)"
-              class="w-full text-left p-3 border-b hover:bg-gray-50 block" [class.bg-primary]="!n.isRead">
-              <p class="text-sm font-medium text-gray-900">{{ n.title }}</p>
-              <p class="text-xs text-gray-600 mt-0.5">{{ n.message }}</p>
-              <p class="text-xs text-gray-400 mt-1">{{ n.createdAt | date: 'short' }}</p>
-            </button>
-          </div>
+      <!-- ── Brand ─────────────────────────────────── -->
+      <a routerLink="/"
+         class="flex items-center gap-2.5 shrink-0 group mr-2"
+         aria-label="InclusiveConnect — home">
+        <div class="h-9 w-9 rounded-xl overflow-hidden ring-1 ring-border
+                    group-hover:ring-primary/30 group-hover:shadow-soft transition-all duration-200">
+          <img src="assets/logo.png" alt="" class="h-full w-full object-contain" width="36" height="36" />
         </div>
+        <span class="hidden lg:block font-heading font-bold text-[1.05rem] text-text-primary tracking-tight whitespace-nowrap">
+          Inclusive<span class="text-primary">Connect</span>
+        </span>
+      </a>
 
-        <button (click)="logout()" class="text-gray-700 hover:text-error">Logout</button>
-      </ng-container>
+      <!-- ── Global Search ──────────────────────────── -->
+      <form class="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative" (submit)="onSearch($event)" role="search">
+        <label for="global-search" class="sr-only">Search professionals, jobs, companies</label>
+        <div class="relative w-full">
+          <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-text-secondary/60">
+            <ic-icon name="search" [size]="16"></ic-icon>
+          </span>
+          <input
+            id="global-search"
+            type="search"
+            [(ngModel)]="searchQuery"
+            name="search"
+            placeholder="Search people, jobs…"
+            autocomplete="off"
+            class="input-search w-full pl-9 pr-4 py-2 text-sm rounded-xl"
+            (focus)="searchFocused = true"
+            (blur)="searchFocused = false"
+          />
+        </div>
+      </form>
 
-      <ng-template #guestLinks>
-        <a routerLink="/auth/login" class="text-gray-700 hover:text-primary">Sign in</a>
-        <a routerLink="/auth/register" class="rounded bg-primary text-white px-4 py-1.5">Get started</a>
-      </ng-template>
+      <!-- ── Desktop Navigation ─────────────────────── -->
+      <nav class="hidden md:flex items-center flex-1 justify-center gap-0.5" aria-label="Main navigation">
+        <a routerLink="/"
+           routerLinkActive="nav-link-active"
+           [routerLinkActiveOptions]="{ exact: true }"
+           class="nav-link min-w-[4.5rem]">
+          <ic-icon name="home" [size]="22"></ic-icon>
+          <span>Home</span>
+        </a>
+        <a *ngIf="isLoggedIn"
+           routerLink="/network"
+           routerLinkActive="nav-link-active"
+           class="nav-link min-w-[4.5rem]">
+          <ic-icon name="network" [size]="22"></ic-icon>
+          <span>Network</span>
+        </a>
+        <a routerLink="/jobs"
+           routerLinkActive="nav-link-active"
+           class="nav-link min-w-[4.5rem]">
+          <ic-icon name="briefcase" [size]="22"></ic-icon>
+          <span>Jobs</span>
+        </a>
+        <a *ngIf="isLoggedIn"
+           routerLink="/chat"
+           routerLinkActive="nav-link-active"
+           class="nav-link min-w-[4.5rem]">
+          <ic-icon name="message" [size]="22"></ic-icon>
+          <span>Messages</span>
+        </a>
+        <a routerLink="/companies"
+           routerLinkActive="nav-link-active"
+           class="nav-link min-w-[4.5rem] hidden lg:flex">
+          <ic-icon name="building" [size]="22"></ic-icon>
+          <span>Companies</span>
+        </a>
+        <a *ngIf="isAdmin"
+           routerLink="/admin"
+           routerLinkActive="nav-link-active"
+           class="nav-link min-w-[4.5rem]">
+          <ic-icon name="admin" [size]="22"></ic-icon>
+          <span>Admin</span>
+        </a>
+      </nav>
+
+      <!-- ── Right Actions ──────────────────────────── -->
+      <div class="flex items-center gap-1.5 ml-auto">
+
+        <!-- Accessibility -->
+        <a routerLink="/accessibility"
+           class="btn-icon text-text-secondary hover:bg-slate-100 hover:text-primary hidden sm:flex"
+           aria-label="Accessibility settings"
+           title="Accessibility settings">
+          <ic-icon name="accessibility" [size]="20"></ic-icon>
+        </a>
+
+        <ng-container *ngIf="isLoggedIn; else guestActions">
+
+          <!-- Notifications -->
+          <div class="relative" data-notif>
+            <button
+              type="button"
+              (click)="toggleNotifDropdown()"
+              class="btn-icon relative text-text-secondary hover:bg-slate-100 hover:text-primary"
+              aria-label="Notifications"
+              [attr.aria-expanded]="showNotifDropdown"
+              aria-haspopup="true">
+              <ic-icon name="bell" [size]="20"></ic-icon>
+              <span *ngIf="unreadCount > 0" class="notif-dot">
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+            </button>
+
+            <!-- Notifications dropdown -->
+            <div *ngIf="showNotifDropdown"
+                 class="dropdown right-0 w-80 sm:w-96 max-h-[32rem] overflow-y-auto"
+                 role="menu"
+                 aria-label="Notifications">
+              <div class="flex items-center justify-between px-4 py-3 border-b border-border sticky top-0 bg-white z-10">
+                <span class="font-heading font-semibold text-sm">Notifications</span>
+                <a routerLink="/notifications"
+                   (click)="showNotifDropdown = false"
+                   class="text-xs text-primary font-medium hover:underline">
+                  View all
+                </a>
+              </div>
+              <p *ngIf="!notifications.length"
+                 class="p-8 text-sm text-text-secondary text-center">
+                You're all caught up ✓
+              </p>
+              <button
+                *ngFor="let n of notifications"
+                type="button"
+                (click)="onNotificationClick(n)"
+                class="dropdown-item border-b border-border/60 last:border-0"
+                [class.notif-unread]="!n.isRead"
+                role="menuitem">
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-text-primary">{{ n.title }}</p>
+                  <p class="text-xs text-text-secondary mt-0.5 line-clamp-2">{{ n.message }}</p>
+                  <p class="text-[11px] text-text-secondary/70 mt-1">{{ n.createdAt | date: 'MMM d, h:mm a' }}</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Applications shortcut -->
+          <a routerLink="/applications"
+             class="btn-icon text-text-secondary hover:bg-slate-100 hover:text-primary hidden lg:flex"
+             aria-label="My Applications"
+             title="My Applications">
+            <ic-icon name="check" [size]="20"></ic-icon>
+          </a>
+
+          <!-- Profile avatar dropdown -->
+          <div class="relative" data-profile>
+            <button
+              type="button"
+              (click)="toggleProfileDropdown()"
+              class="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-slate-100
+                     transition-colors duration-150 focus-visible:outline focus-visible:outline-2
+                     focus-visible:outline-primary group"
+              [attr.aria-expanded]="showProfileDropdown"
+              aria-haspopup="true"
+              aria-label="Profile menu">
+              <div class="avatar-initials h-8 w-8 text-sm shrink-0
+                          from-primary to-secondary">
+                {{ userInitial }}
+              </div>
+              <ic-icon name="chevronRight"
+                       [size]="14"
+                       class="text-text-secondary/60 rotate-90 transition-transform duration-200"
+                       [class.-rotate-90]="showProfileDropdown">
+              </ic-icon>
+            </button>
+
+            <!-- Profile dropdown -->
+            <div *ngIf="showProfileDropdown"
+                 class="dropdown right-0 w-52 py-1"
+                 role="menu">
+              <div class="px-4 py-3 border-b border-border">
+                <p class="text-sm font-semibold text-text-primary truncate">{{ userName || 'My Account' }}</p>
+                <p class="text-xs text-text-secondary mt-0.5">Professional</p>
+              </div>
+              <a routerLink="/profile"
+                 (click)="showProfileDropdown = false"
+                 class="dropdown-item"
+                 role="menuitem">
+                <ic-icon name="user" [size]="16" class="text-text-secondary"></ic-icon>
+                View Profile
+              </a>
+              <a routerLink="/applications"
+                 (click)="showProfileDropdown = false"
+                 class="dropdown-item"
+                 role="menuitem">
+                <ic-icon name="briefcase" [size]="16" class="text-text-secondary"></ic-icon>
+                Applications
+              </a>
+              <a routerLink="/accessibility"
+                 (click)="showProfileDropdown = false"
+                 class="dropdown-item"
+                 role="menuitem">
+                <ic-icon name="accessibility" [size]="16" class="text-text-secondary"></ic-icon>
+                Accessibility
+              </a>
+              <div class="border-t border-border mt-1 pt-1">
+                <button
+                  type="button"
+                  (click)="logout()"
+                  class="dropdown-item w-full text-error hover:bg-red-50"
+                  role="menuitem">
+                  <ic-icon name="logout" [size]="16"></ic-icon>
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </ng-container>
+
+        <!-- Guest actions -->
+        <ng-template #guestActions>
+          <a routerLink="/auth/login"
+             class="btn-ghost text-sm hidden sm:inline-flex">
+            Sign in
+          </a>
+          <a routerLink="/auth/register"
+             class="btn-primary text-sm">
+            Get Started
+          </a>
+        </ng-template>
+
+        <!-- Mobile hamburger -->
+        <button
+          type="button"
+          class="md:hidden btn-icon text-text-secondary hover:bg-slate-100"
+          (click)="mobileOpen = !mobileOpen"
+          [attr.aria-expanded]="mobileOpen"
+          aria-controls="mobile-nav"
+          aria-label="Toggle navigation menu">
+          <svg *ngIf="!mobileOpen" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+          </svg>
+          <ic-icon *ngIf="mobileOpen" name="x" [size]="22"></ic-icon>
+        </button>
+      </div>
     </div>
+
+    <!-- ── Mobile Navigation ───────────────────────── -->
+    <nav *ngIf="mobileOpen"
+         id="mobile-nav"
+         class="md:hidden border-t border-border py-3 animate-fade-down"
+         aria-label="Mobile navigation">
+
+      <!-- Mobile search -->
+      <form class="px-1 mb-3" (submit)="onSearch($event)" role="search">
+        <div class="relative">
+          <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-text-secondary/60">
+            <ic-icon name="search" [size]="16"></ic-icon>
+          </span>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            name="mobileSearch"
+            placeholder="Search people, jobs…"
+            class="input-search w-full pl-9 py-2 text-sm"
+          />
+        </div>
+      </form>
+
+      <div class="grid grid-cols-4 gap-1">
+        <a routerLink="/"              (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="home"         [size]="20"></ic-icon><span>Home</span>
+        </a>
+        <a *ngIf="isLoggedIn" routerLink="/network"     (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="network"      [size]="20"></ic-icon><span>Network</span>
+        </a>
+        <a routerLink="/jobs"          (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="briefcase"    [size]="20"></ic-icon><span>Jobs</span>
+        </a>
+        <a *ngIf="isLoggedIn" routerLink="/chat"        (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="message"      [size]="20"></ic-icon><span>Messages</span>
+        </a>
+        <a *ngIf="isLoggedIn" routerLink="/notifications" (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="bell"         [size]="20"></ic-icon><span>Alerts</span>
+        </a>
+        <a *ngIf="isLoggedIn" routerLink="/profile"     (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="user"         [size]="20"></ic-icon><span>Profile</span>
+        </a>
+        <a *ngIf="isLoggedIn" routerLink="/applications" (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="check"        [size]="20"></ic-icon><span>Apps</span>
+        </a>
+        <a routerLink="/accessibility" (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="accessibility" [size]="20"></ic-icon><span>Access</span>
+        </a>
+        <a *ngIf="isAdmin" routerLink="/admin"           (click)="mobileOpen = false" class="nav-link py-2.5">
+          <ic-icon name="admin"        [size]="20"></ic-icon><span>Admin</span>
+        </a>
+      </div>
+
+      <div *ngIf="isLoggedIn" class="mt-3 pt-3 border-t border-border px-1">
+        <button type="button" (click)="logout()"
+                class="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium
+                       text-error rounded-xl hover:bg-red-50 transition-colors">
+          <ic-icon name="logout" [size]="18"></ic-icon>
+          Sign out
+        </button>
+      </div>
+    </nav>
+
   </div>
-</nav>
+</header>

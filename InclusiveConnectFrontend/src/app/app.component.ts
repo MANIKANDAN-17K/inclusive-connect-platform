@@ -5,17 +5,15 @@ import { NavbarComponent } from './layouts/navbar/navbar.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent],
   template: `
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <ic-navbar></ic-navbar>
-    <main id="main-content">
-    <router-outlet></router-outlet>
+    <main id="main-content" class="min-h-[calc(100vh-4rem)]">
+      <router-outlet></router-outlet>
     </main>
-    `,
-  })
-  export class AppComponent {
-    title = 'inclusive-connect-frontend';
-  }
-  
-  //,
+  `,
+})
+export class AppComponent {
+  title = 'InclusiveConnect';
+}

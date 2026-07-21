@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────
+#  .dockerignore — InclusiveConnect Backend
+#  Prevents unnecessary files from being sent to Docker build context
+# ─────────────────────────────────────────────────────────────────────
+
+# Maven build output (will be rebuilt inside Docker)
+target/
+
+# IDE project files
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# Local environment & secrets — NEVER in Docker context
+.env
+*.env
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+HELP.md
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Test coverage reports
+**/jacoco/
+**/*.xml.bak

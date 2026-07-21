@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────
+#  .dockerignore — InclusiveConnect Frontend
+#  Prevents large/unnecessary directories from being sent to Docker
+# ─────────────────────────────────────────────────────────────────────
+
+# Node modules (reinstalled inside Docker with npm ci)
+node_modules/
+
+# Angular build cache and compiled output
+dist/
+.angular/
+
+# Test & coverage artefacts
+coverage/
+karma-results/
+
+# Version control
+.git/
+.gitignore
+
+# Documentation & config
+*.md
+.editorconfig
+
+# VS Code
+.vscode/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Environment files — never copy local env to Docker context
+*.env
+.env*
+
+# Dockerfile itself is fine to include, but exclude old Dockerfiles
+Dockerfile.bak

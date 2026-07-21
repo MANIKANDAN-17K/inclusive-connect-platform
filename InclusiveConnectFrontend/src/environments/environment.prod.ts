@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.inclusiveconnect.com/api/v1',
-  wsUrl: 'https://api.inclusiveconnect.com/ws',
+  // Nginx proxies /api → backend container, so relative path works in any deployment
+  apiUrl: '/api/v1',
+  wsUrl: '/ws',
 };

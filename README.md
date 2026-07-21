@@ -1,312 +1,316 @@
-# Inclusive Connect
+# InclusiveConnect
 
-> **An Accessible Professional Networking Platform Connecting Differently-Abled Talent with Inclusive Employers.**
+> **Connect Beyond Limits** — An accessible professional networking platform connecting differently-abled talent with inclusive employers.
 
-Inclusive Connect is a full-stack web application designed to empower differently-abled professionals by providing an accessible platform for networking, job discovery, and professional growth. The platform enables candidates to connect with employers, showcase their skills, apply for jobs, communicate in real time, and access accessibility-focused features.
-
-This project is being developed following professional software engineering practices, including requirement analysis, system design, RESTful API development, clean architecture, security best practices, and comprehensive documentation.
+InclusiveConnect is a production-ready full-stack web application that empowers differently-abled professionals with a modern, accessible platform for networking, job discovery, real-time communication, and career growth.
 
 ---
 
-## Vision
+## Application Screenshots
 
-To create an inclusive digital ecosystem where differently-abled individuals can confidently build professional networks, discover career opportunities, and connect with organizations committed to inclusive hiring.
+| Landing Page | Login | Candidate Dashboard |
+|---|---|---|
+| ![Landing](Application%20Screenshots/landing-page.png) | ![Login](Application%20Screenshots/login.png) | ![Dashboard](Application%20Screenshots/candidate-dashboard.png) |
+
+| Jobs | Network | Chat | Notifications |
+|---|---|---|---|
+| ![Jobs](Application%20Screenshots/job-list.png) | ![Network](Application%20Screenshots/network.png) | ![Chat](Application%20Screenshots/chat.png) | ![Notifications](Application%20Screenshots/notifications.png) |
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Angular 17, TypeScript, Angular Material, Tailwind CSS |
+| Backend | Java 17, Spring Boot 3, Spring Security, Spring Data JPA |
+| Real-Time | Spring WebSocket, STOMP |
+| Database | MySQL 8 |
+| Auth | JWT (access + refresh tokens) |
+| File Storage | Cloudinary |
+| API Docs | SpringDoc OpenAPI / Swagger |
+| Containerization | Docker, Docker Compose |
+| CI/CD | GitHub Actions |
+| Web Server | Nginx (reverse proxy + SPA server) |
 
 ---
 
 ## Key Features
 
-### Authentication & Security
-
-* User Registration
-* Secure Login
-* JWT Authentication
-* Refresh Tokens
-* Email Verification
-* Forgot & Reset Password
-* Role-Based Access Control (RBAC)
-
-### Candidate Portal
-
-* Professional Profile
-* Resume Upload
-* Skills Management
-* Education & Experience
-* Job Search
-* Job Applications
-* Saved Jobs
-
-### Employer Portal
-
-* Company Profile
-* Job Posting & Management
-* Applicant Tracking
-* Candidate Search
-* Employer Verification
-
-### Professional Networking
-
-* Connection Requests
-* Professional Connections
-* User Discovery
-
-### Real-Time Communication
-
-* One-to-One Messaging
-* Live Notifications
-* Typing Indicators
-* Read Receipts
-
-### Accessibility Features
-
-* WCAG 2.1 Inspired Design
-* High Contrast Mode
-* Keyboard Navigation
-* Adjustable Font Size
-* Screen Reader Support
-* Responsive User Interface
-
-### Administration
-
-* User Management
-* Employer Verification
-* Platform Moderation
-* Dashboard & Reports
+- JWT authentication with refresh tokens, email verification, password reset
+- Candidate profiles with skills, experience, education, resume upload
+- Employer portal with company profiles, job posting, and applicant tracking
+- Professional networking — connection requests, discovery, search
+- Real-time one-to-one messaging with WebSocket/STOMP
+- Live notifications with typing indicators
+- Accessibility settings (high contrast, large text, keyboard nav, screen reader support)
+- Admin dashboard for user and employer management
+- Role-based access control (CANDIDATE / EMPLOYER / ADMIN)
 
 ---
 
-# Technology Stack
+## Project Structure
 
-## Frontend
-
-* Angular
-* TypeScript
-* Angular Material
-* Tailwind CSS
-* RxJS
-
-## Backend
-
-* Java 17
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* JWT
-* MapStruct
-* Bean Validation
-* Swagger/OpenAPI
-
-## Database
-
-* MySQL
-
-## Real-Time Communication
-
-* Spring WebSocket
-* STOMP
-
-## DevOps & Tools
-
-* Maven
-* Git & GitHub
-* Docker (Planned)
-* Docker Compose (Planned)
-* GitHub Actions (Planned)
-
----
-
-# Project Structure
-
-```text
-inclusive-connect/
+```
+InclusiveConnect/
+├── InclusiveConnectBackend/        # Spring Boot REST API
+│   ├── src/main/java/              # Application source
+│   ├── src/main/resources/
+│   │   ├── application.yaml        # Base config (profile = dev)
+│   │   ├── application-dev.yml     # Local development
+│   │   └── application-prod.yml    # Production (all secrets via env vars)
+│   └── Dockerfile                  # Multi-stage build → JRE runtime
 │
-├── backend/                 # Spring Boot REST API
+├── InclusiveConnectFrontend/       # Angular SPA
+│   ├── src/
+│   │   ├── app/                    # Features, core, shared, layouts
+│   │   └── environments/           # environment.ts / environment.prod.ts
+│   ├── nginx.conf                  # SPA routing + API proxy + gzip
+│   └── Dockerfile                  # Node build → Nginx runtime
 │
-├── frontend/                # Angular Application
+├── database/
+│   └── init.sql                    # MySQL init: charset + seed roles
 │
-├── database/                # SQL Scripts & Migrations
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml               # GitHub Actions CI/CD pipeline
 │
-├── docs/                    # Software Engineering Documents
-│   ├── SRS
-│   ├── Architecture
-│   ├── API Design
-│   ├── UML Diagrams
-│   └── Testing
-│
-├── .gitignore
-├── docker-compose.yml
-├── README.md
-└── LICENSE
+├── docker-compose.yml              # Full stack: mysql + backend + frontend
+├── .env.example                    # Environment variable template
+└── README.md
 ```
 
 ---
 
-# Software Engineering Process
+## Quick Start — Docker Compose (Recommended)
 
-This project follows a structured software development lifecycle.
+### Prerequisites
 
-* Requirement Analysis
-* Software Requirement Specification (SRS)
-* Use Case Analysis
-* Database Design
-* REST API Design
-* System Architecture
-* UI/UX Design
-* Backend Development
-* Frontend Development
-* Testing
-* Deployment
-* Documentation
+- [Docker](https://docs.docker.com/get-docker/) ≥ 24
+- [Docker Compose](https://docs.docker.com/compose/install/) ≥ 2.20
+- A [Cloudinary](https://cloudinary.com) account (free tier works)
+- A Gmail account with an [App Password](https://myaccount.google.com/apppasswords) for SMTP
 
----
-
-# Development Roadmap
-
-### Phase 1
-
-* Project Setup
-* Authentication
-* Authorization
-* Email Verification
-
-### Phase 2
-
-* Candidate Profile
-* Education
-* Experience
-* Resume Upload
-
-### Phase 3
-
-* Employer Module
-* Company Profile
-
-### Phase 4
-
-* Job Management
-* Job Applications
-
-### Phase 5
-
-* Professional Networking
-
-### Phase 6
-
-* Real-Time Messaging
-
-### Phase 7
-
-* Notification System
-
-### Phase 8
-
-* Accessibility Features
-
-### Phase 9
-
-* Admin Dashboard
-
-### Phase 10
-
-* Deployment & DevOps
-
----
-
-# Architecture
-
-```text
-                Angular Frontend
-                       │
-             REST API / WebSocket
-                       │
-              Spring Boot Backend
-                       │
-        Service → Repository → MySQL
-```
-
----
-
-# Current Status
-
-**Project Status:** 🚧 Active Development
-
-### Completed
-
-* Software Requirement Specification (SRS)
-* System Architecture
-* Database Design
-* REST API Design
-* UI/UX Planning
-
-### In Progress
-
-* Backend Development
-
-### Planned
-
-* Frontend Development
-* Testing
-* Deployment
-* Documentation
-
----
-
-# Getting Started
-
-## Clone Repository
+### 1. Clone
 
 ```bash
-git clone https://github.com/MANIKANDAN-17K/inclusive-connect.git
+git clone https://github.com/MANIKANDAN-17K/InclusiveConnect.git
+cd InclusiveConnect
 ```
 
-## Backend
+### 2. Configure environment
 
 ```bash
-cd backend
-mvn clean install
-mvn spring-boot:run
+cp .env.example .env
 ```
 
-## Frontend
+Open `.env` and fill in every variable:
+
+```env
+MYSQL_ROOT_PASSWORD=your_strong_root_password
+MYSQL_PASSWORD=your_strong_app_password
+
+# Generate with: openssl rand -base64 64
+JWT_SECRET=your_very_long_random_secret
+
+MAIL_USERNAME=your@gmail.com
+MAIL_PASSWORD=your_gmail_app_password
+
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+```
+
+### 3. Start all services
 
 ```bash
-cd frontend
+docker compose up -d
+```
+
+Docker will:
+1. Pull MySQL 8 and run `database/init.sql`
+2. Build the Spring Boot backend (Maven compile inside Docker)
+3. Build the Angular frontend (npm build inside Docker) and serve it via Nginx
+
+Watch startup logs:
+
+```bash
+docker compose logs -f
+```
+
+### 4. Access the application
+
+| Service | URL |
+|---|---|
+| Application | http://localhost |
+| Backend API | http://localhost/api/v1 |
+| API Docs (dev only) | http://localhost:8080/swagger-ui.html |
+
+### 5. Stop / tear down
+
+```bash
+# Stop containers (keep volumes)
+docker compose down
+
+# Stop and remove all data volumes (full reset)
+docker compose down -v
+```
+
+---
+
+## Local Development (without Docker)
+
+### Backend
+
+Requirements: Java 17, Maven 3.8+, MySQL 8 running locally.
+
+```bash
+cd InclusiveConnectBackend
+
+# Copy your local credentials into .env (already gitignored)
+# Or export them manually:
+export CLOUDINARY_URL=cloudinary://...
+
+./mvnw spring-boot:run
+# Spring profile = dev by default (see application.yaml)
+# API available at: http://localhost:8080
+```
+
+### Frontend
+
+Requirements: Node 20, npm.
+
+```bash
+cd InclusiveConnectFrontend
 npm install
-ng serve
+npm start
+# Dev server with live reload at: http://localhost:4200
+```
+
+The dev environment.ts points to `http://localhost:8080/api/v1`, so the backend must be running.
+
+---
+
+## Production Deployment
+
+### Environment Variables Reference
+
+| Variable | Required | Description |
+|---|---|---|
+| `MYSQL_ROOT_PASSWORD` | ✅ | MySQL root password |
+| `MYSQL_DATABASE` | ✅ | Database name |
+| `MYSQL_USER` / `MYSQL_PASSWORD` | ✅ | App DB credentials |
+| `JWT_SECRET` | ✅ | ≥64-char random Base64 secret |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | ✅ | SMTP credentials |
+| `CLOUDINARY_URL` | ✅ | Full Cloudinary connection URL |
+| `CORS_ALLOWED_ORIGINS` | ✅ | Your domain, e.g. `https://yourapp.com` |
+| `JWT_ACCESS_EXPIRY_MS` | optional | Default: 900000 (15 min) |
+| `JWT_REFRESH_EXPIRY_MS` | optional | Default: 604800000 (7 days) |
+
+### Deploying to a VPS / Cloud VM
+
+```bash
+# On the server
+git clone https://github.com/MANIKANDAN-17K/InclusiveConnect.git
+cd InclusiveConnect
+cp .env.example .env
+nano .env   # fill in production values
+
+# Set CORS_ALLOWED_ORIGINS to your domain
+# Set CORS_ALLOWED_ORIGINS=https://your-domain.com
+
+docker compose up -d --build
+```
+
+To serve on HTTPS, place an Nginx/Certbot reverse proxy in front and change port 80 to your host port.
+
+### Using Pre-built Docker Images (CI/CD)
+
+After pushing to `main`, GitHub Actions builds and pushes images to Docker Hub:
+- `your-username/inclusive-connect-backend:latest`
+- `your-username/inclusive-connect-frontend:latest`
+
+To pull and run pre-built images instead of building locally, set image tags in `.env`:
+
+```env
+BACKEND_IMAGE_TAG=sha-abc1234
+FRONTEND_IMAGE_TAG=sha-abc1234
+```
+
+Then remove the `build:` sections from `docker-compose.yml` and use the `image:` fields directly.
+
+---
+
+## CI/CD Pipeline (GitHub Actions)
+
+The workflow in `.github/workflows/ci-cd.yml` runs on every push and pull request:
+
+| Job | Trigger | Steps |
+|---|---|---|
+| `backend-ci` | All branches | Maven build, unit tests against MySQL service container |
+| `frontend-ci` | All branches | npm install, Angular production build |
+| `docker-build` | `main` branch only | Build + push both images to Docker Hub |
+
+### Required GitHub Secrets
+
+Go to **Settings → Secrets and variables → Actions** and add:
+
+| Secret | Value |
+|---|---|
+| `DOCKER_HUB_USERNAME` | Your Docker Hub username |
+| `DOCKER_HUB_TOKEN` | Docker Hub access token (not password) |
+
+---
+
+## Architecture
+
+```
+  Browser
+     │
+     ▼
+ ┌─────────────────────────────────┐
+ │  Nginx (port 80)                │
+ │  • Serves Angular SPA           │
+ │  • /api/*  → proxy → backend    │
+ │  • /ws     → proxy → backend    │
+ └────────────┬────────────────────┘
+              │  Docker internal network
+              ▼
+ ┌────────────────────────────────────┐
+ │  Spring Boot Backend (port 8080)   │
+ │  • REST API   /api/v1/**           │
+ │  • WebSocket  /ws                  │
+ │  • JWT auth, RBAC                  │
+ └────────────┬───────────────────────┘
+              │
+              ▼
+ ┌────────────────────────────────────┐
+ │  MySQL 8  (port 3306)              │
+ │  • Persistent volume               │
+ └────────────────────────────────────┘
 ```
 
 ---
 
-# Documentation
+## Security Notes
 
-Project documentation will be maintained in the `docs/` directory and includes:
-
-* Software Requirement Specification (SRS)
-* Architecture Design
-* Database Design
-* API Documentation
-* UML Diagrams
-* Testing Documentation
-
----
-
-# Contributing
-
-Contributions, suggestions, and feedback are welcome. Please create an issue or submit a pull request before making major changes.
-
----
-
-# License
-
-This project is developed for educational, learning, and portfolio purposes.
+- All secrets are environment variables — **never hardcoded**
+- `.env` is in `.gitignore` — never committed
+- Backend runs as a **non-root user** inside Docker
+- Nginx adds **security headers** (X-Frame-Options, X-Content-Type-Options, etc.)
+- Production Swagger/OpenAPI UI is **disabled**
+- MySQL port 3306 can be removed from `docker-compose.yml` ports for strict production
+- JWT access tokens expire in 15 minutes; refresh tokens in 7 days
 
 ---
 
 ## Author
 
 **Manikandan K**
-
 Bachelor of Engineering in Computer Science and Engineering
 
 Building software with a focus on accessibility, scalability, and clean architecture.
 
+---
+
+## License
+
+This project is developed for educational, learning, and portfolio purposes.

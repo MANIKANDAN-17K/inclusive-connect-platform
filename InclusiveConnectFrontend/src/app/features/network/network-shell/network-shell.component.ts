@@ -1,54 +1,93 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IcIconName } from '../../../shared/icons/icons';
 
 interface NavTab {
-    label: string;
-    path: string;
-    id: string;
+  label:  string;
+  path:   string;
+  id:     string;
+  icon:   IcIconName;
+  exact?: boolean;
 }
 
 @Component({
-    selector: 'ic-network-shell',
-    standalone: true,
-    imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
-    template: `
-    <div class="max-w-6xl mx-auto px-4 py-6">
+  selector: 'ic-network-shell',
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, IconComponent],
+  template: `
+    <div class="page-shell animate-fade-in">
+
       <!-- Page header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">My Network</h1>
-        <p class="text-sm text-gray-500 mt-1">Discover professionals, manage your connections and requests</p>
+        <h1 class="section-title">My Network</h1>
+        <p class="text-sm text-text-secondary mt-1">
+          Discover professionals, manage connections and requests
+        </p>
       </div>
 
-      <!-- Tab navigation -->
-      <nav class="flex gap-1 mb-6 bg-gray-100 p-1 rounded-2xl w-fit" aria-label="Network sections">
+      <!-- Tab bar -->
+      <nav
+        class="flex gap-1 mb-7 border-b border-border"
+        aria-label="Network sections"
+        role="tablist"
+      >
         <a
           *ngFor="let tab of tabs"
           [routerLink]="tab.path"
-          routerLinkActive="bg-white shadow-sm text-gray-900 font-semibold"
-          [routerLinkActiveOptions]="{ exact: true }"
+          routerLinkActive="tab-active"
+          [routerLinkActiveOptions]="{ exact: !!tab.exact }"
           [id]="tab.id"
-          [attr.aria-label]="tab.label"
-          class="px-4 py-2 rounded-xl text-sm transition-all duration-150 focus:outline-none
-                 focus:ring-2 focus:ring-indigo-400 text-gray-500 hover:text-gray-700 cursor-pointer whitespace-nowrap"
+          role="tab"
+          class="tab-link"
+          [attr.aria-selected]="false"
         >
-          {{ tab.label }}
+          <ic-icon [name]="tab.icon" [size]="16"></ic-icon>
+          <span>{{ tab.label }}</span>
         </a>
       </nav>
 
-      <!-- Routed child component -->
+      <!-- Routed content -->
       <router-outlet />
     </div>
   `,
+  styles: [`
+    .tab-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 150ms, border-color 150ms;
+      white-space: nowrap;
+      border-radius: 6px 6px 0 0;
+    }
+    .tab-link:hover {
+      color: var(--color-primary);
+      background: #f8fafc;
+    }
+    .tab-link:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    .tab-active {
+      color: var(--color-primary) !important;
+      border-bottom-color: var(--color-primary) !important;
+      font-weight: 600;
+    }
+  `],
 })
 export class NetworkShellComponent {
-    private router = inject(Router);
-
-    tabs: NavTab[] = [
-        { label: '🔍 Discover', path: '/network/discover', id: 'tab-discover' },
-        { label: '🔎 Search', path: '/network/search', id: 'tab-search' },
-        { label: '🤝 Connections', path: '/network/connections', id: 'tab-connections' },
-        { label: '📥 Pending', path: '/network/pending', id: 'tab-pending' },
-        { label: '📤 Sent', path: '/network/sent', id: 'tab-sent' },
-    ];
+  readonly tabs: NavTab[] = [
+    { label: 'Discover',     path: '/network/discover',     id: 'tab-discover',     icon: 'users' },
+    { label: 'Search',       path: '/network/search',       id: 'tab-search',       icon: 'search' },
+    { label: 'Connections',  path: '/network/connections',  id: 'tab-connections',  icon: 'network' },
+    { label: 'Pending',      path: '/network/pending',      id: 'tab-pending',      icon: 'bell' },
+    { label: 'Sent',         path: '/network/sent',         id: 'tab-sent',         icon: 'send' },
+  ];
 }
